@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ground Resistance PM Form — ESP</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #F4F2ED;
+    --surface: #FFFFFF;
+    --surface2: #F9F8F5;
+    --border: #D8D5CC;
+    --border2: #C5C1B6;
+    --text: #1A1916;
+    --text2: #5C5A54;
+    --text3: #9C9A94;
+    --accent: #0F6E56;
+    --accent-light: #E1F5EE;
+    --accent-mid: #1D9E75;
+    --danger: #A32D2D;
+    --danger-light: #FCEBEB;
+    --warning: #854F0B;
+    --warning-light: #FAEEDA;
+    --pass: #3B6D11;
+    --pass-light: #EAF3DE;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ─── Header ─── */
+  .header {
+    background: var(--text);
+    color: #fff;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-dot {
+    width: 28px; height: 28px;
+    background: var(--accent-mid);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-dot svg { width: 16px; height: 16px; fill: #fff; }
+  .header-title { font-size: 15px; font-weight: 500; letter-spacing: 0.01em; }
+  .header-sub { font-size: 12px; color: #9C9A94; font-family: 'IBM Plex Mono', monospace; }
+  .doc-ref {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: #9C9A94;
+    text-align: right;
+  }
+
+  /* ─── Main Layout ─── */
+  .main { max-width: 900px; margin: 0 auto; padding: 28px 24px 60px; }
+
+  /* ─── Section ─── */
+  .section {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text3);
+    margin-bottom: 14px;
+  }
+
+  /* ─── Form Elements ─── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .form-item { display: flex; flex-direction: column; gap: 5px; }
+  .form-item label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text2);
+    letter-spacing: 0.02em;
+  }
+  .form-item input,
+  .form-item select,
+  .form-item textarea {
+    width: 100%;
+    padding: 9px 12px;
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .form-item input:focus,
+  .form-item select:focus {
+    border-color: var(--accent-mid);
+    box-shadow: 0 0 0 3px rgba(29,158,117,0.12);
+  }
+  .form-item select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235C5A54' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+    cursor: pointer;
+  }
+  .form-item input[type="number"] { font-family: 'IBM Plex Mono', monospace; }
+  .form-item input::placeholder { color: var(--text3); }
+
+  /* ─── Plant Selector ─── */
+  .plant-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 0;
+  }
+  .plant-btn {
+    padding: 10px 6px;
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface2);
+    color: var(--text2);
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    line-height: 1.3;
+  }
+  .plant-btn:hover { border-color: var(--accent-mid); color: var(--accent); }
+  .plant-btn.active {
+    background: var(--accent-light);
+    border-color: var(--accent-mid);
+    color: var(--accent);
+    border-width: 1.5px;
+  }
+
+  /* ─── EQ Table ─── */
+  .eq-header {
+    display: grid;
+    gap: 0;
+    background: var(--surface2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius) var(--radius) 0 0;
+    overflow: hidden;
+  }
+  .eq-header-row {
+    display: grid;
+    grid-template-columns: 36px 180px 90px repeat(7, 1fr) 90px 90px 70px;
+    border-bottom: 0.5px solid var(--border);
+    background: var(--text);
+    color: #fff;
+  }
+  .eq-header-row .col {
+    padding: 9px 8px;
+    font-size: 11px;
+    font-weight: 500;
+    text-align: center;
+    letter-spacing: 0.04em;
+    border-right: 0.5px solid rgba(255,255,255,0.12);
+  }
+  .eq-header-row .col:last-child { border-right: none; }
+  .eq-header-row .col.left { text-align: left; padding-left: 12px; }
+
+  .eq-body {
+    border: 0.5px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    overflow: hidden;
+  }
+  .eq-row {
+    display: grid;
+    grid-template-columns: 36px 180px 90px repeat(7, 1fr) 90px 90px 70px;
+    border-bottom: 0.5px solid var(--border);
+    align-items: center;
+    transition: background 0.1s;
+  }
+  .eq-row:last-child { border-bottom: none; }
+  .eq-row:hover { background: var(--surface2); }
+  .eq-row .col {
+    padding: 7px 8px;
+    text-align: center;
+    border-right: 0.5px solid var(--border);
+    font-size: 13px;
+  }
+  .eq-row .col:last-child { border-right: none; }
+  .eq-row .col.no {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: 'IBM Plex Mono', monospace;
+    text-align: center;
+  }
+  .eq-row .col.eq-name {
+    text-align: left;
+    padding-left: 12px;
+    font-size: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--text2);
+    font-weight: 500;
+  }
+  .eq-row .col.tag-col {
+    font-size: 11px;
+    color: var(--text3);
+    text-align: center;
+  }
+
+  .eq-input {
+    width: 100%;
+    padding: 5px 6px;
+    border: 0.5px solid var(--border);
+    border-radius: 5px;
+    background: var(--surface);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    text-align: center;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.12s;
+  }
+  .eq-input:focus { border-color: var(--accent-mid); box-shadow: 0 0 0 2px rgba(29,158,117,0.15); }
+  .eq-input:disabled {
+    background: var(--bg);
+    color: var(--text3);
+    border-color: transparent;
+    cursor: not-allowed;
+  }
+  .eq-input.pass { border-color: #97C459; background: #F4FAE8; }
+  .eq-input.fail { border-color: #E24B4A; background: #FCEBEB; }
+
+  .e-total-display {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    padding: 5px 4px;
+    border-radius: 5px;
+    background: var(--surface2);
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .e-total-display.pass { background: var(--pass-light); color: var(--pass); }
+  .e-total-display.fail { background: var(--danger-light); color: var(--danger); }
+
+  .e-main-input.pass { border-color: #97C459; background: #F4FAE8; color: var(--pass); font-weight: 500; }
+  .e-main-input.fail { border-color: #E24B4A; background: #FCEBEB; color: var(--danger); font-weight: 500; }
+
+  .status-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    text-align: center;
+    width: 100%;
+  }
+  .status-badge.pass { background: var(--pass-light); color: var(--pass); }
+  .status-badge.fail { background: var(--danger-light); color: var(--danger); }
+  .status-badge.pending { background: var(--surface2); color: var(--text3); }
+
+  /* ─── Note / Criteria ─── */
+  .criteria-bar {
+    background: var(--surface2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--text2);
+    font-family: 'IBM Plex Mono', monospace;
+    margin-bottom: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .criteria-item { display: flex; align-items: center; gap: 6px; }
+  .criteria-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ─── Summary Bar ─── */
+  .summary-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .summary-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    text-align: center;
+  }
+  .summary-num {
+    font-size: 22px;
+    font-weight: 500;
+    font-family: 'IBM Plex Mono', monospace;
+    line-height: 1.1;
+  }
+  .summary-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .summary-card.s-pass .summary-num { color: var(--pass); }
+  .summary-card.s-fail .summary-num { color: var(--danger); }
+  .summary-card.s-pending .summary-num { color: var(--text3); }
+
+  /* ─── Ground Arrester Section ─── */
+  .arrester-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .arrester-area {
+    background: var(--surface2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .arrester-title {
+    background: #2C2C2A;
+    color: #fff;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .arrester-inner { padding: 10px 12px; }
+  .arrester-row {
+    display: grid;
+    grid-template-columns: 70px 1fr 80px;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .arrester-row:last-child { margin-bottom: 0; }
+  .arrester-label { font-size: 12px; color: var(--text2); }
+  .arrester-result {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: right;
+  }
+  .arrester-result.pass { color: var(--pass); }
+  .arrester-result.fail { color: var(--danger); }
+
+  /* ─── Submit ─── */
+  .submit-area {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+  .btn-reset {
+    padding: 10px 20px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text2);
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-reset:hover { background: var(--surface2); }
+  .btn-submit {
+    padding: 10px 28px;
+    border: none;
+    border-radius: var(--radius);
+    background: var(--accent);
+    color: #fff;
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.02em;
+  }
+  .btn-submit:hover { background: var(--accent-mid); }
+  .btn-submit:active { transform: scale(0.98); }
+
+  /* ─── Toast ─── */
+  #toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: var(--text);
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.25s;
+    pointer-events: none;
+    z-index: 999;
+    max-width: 320px;
+    line-height: 1.5;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ─── Empty State ─── */
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--text3);
+    font-size: 13px;
+  }
+  .empty-state svg { margin-bottom: 10px; opacity: 0.4; }
+
+  /* ─── Calibration note ─── */
+  .calib-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 10px;
+  }
+  .calib-item {
+    background: var(--surface2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    font-size: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--text2);
+  }
+  .calib-label { font-size: 11px; color: var(--text3); margin-bottom: 3px; font-family: 'IBM Plex Sans Thai', sans-serif; }
+
+  .tag-pill {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-weight: 500;
+    margin-right: 2px;
+  }
+
+  @media (max-width: 700px) {
+    .plant-grid { grid-template-columns: repeat(3, 1fr); }
+    .form-grid, .form-grid-3 { grid-template-columns: 1fr; }
+    .summary-bar { grid-template-columns: repeat(2, 1fr); }
+    .arrester-grid { grid-template-columns: 1fr; }
+    .eq-header-row, .eq-row { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-logo">
+      <div class="logo-dot">
+        <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="4"/><path d="M8 2v2M8 12v2M2 8h2M12 8h2" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
+      </div>
+      <div>
+        <div class="header-title">Ground Resistance PM Inspection</div>
+        <div class="header-sub">PM 6 MONTHS · ESP AREA</div>
+      </div>
+    </div>
+    <div class="doc-ref">
+      GROUND-ESP-02<br>แก้ไขครั้งที่ 4
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ─── Meta Info ─── -->
+  <div class="section">
+    <div class="section-title">ข้อมูลทั่วไป</div>
+    <div class="form-grid">
+      <div class="form-item">
+        <label>วันที่ตรวจ</label>
+        <input type="date" id="inspection-date">
+      </div>
+      <div class="form-item">
+        <label>ชื่อช่างผู้ตรวจ</label>
+        <input type="text" id="technician" placeholder="ชื่อ-นามสกุล">
+      </div>
+      <div class="form-item">
+        <label>เครื่องมือวัด</label>
+        <input type="text" id="instrument" placeholder="เช่น Fluke 1630 Earth">
+      </div>
+      <div class="form-item">
+        <label>Serial Number</label>
+        <input type="text" id="instrument-sn" placeholder="S/N">
+      </div>
+    </div>
+    <div class="calib-row">
+      <div class="calib-item">
+        <div class="calib-label">Calibrate ที่ 10Ω อ่านค่าได้</div>
+        <input type="number" step="0.01" id="calib-val" placeholder="10.11" style="border:none;background:transparent;font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--text);width:100%;outline:none;"> Ω
+      </div>
+      <div class="calib-item">
+        <div class="calib-label">เกณฑ์ยอมรับ error ±10%</div>
+        <span id="calib-range" style="font-size:13px;">9 – 11 Ω</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Plant Selector ─── -->
+  <div class="section">
+    <div class="section-title">เลือกโรง / พื้นที่</div>
+    <div class="plant-grid" id="plant-grid">
+      <button class="plant-btn active" data-plant="ESP" onclick="selectPlant('ESP',this)">ESP</button>
+      <button class="plant-btn" data-plant="GSP1" onclick="selectPlant('GSP1',this)">GSP1</button>
+      <button class="plant-btn" data-plant="GSP2" onclick="selectPlant('GSP2',this)">GSP2</button>
+      <button class="plant-btn" data-plant="GSP3" onclick="selectPlant('GSP3',this)">GSP3</button>
+      <button class="plant-btn" data-plant="GSP5" onclick="selectPlant('GSP5',this)">GSP5</button>
+      <button class="plant-btn" data-plant="GSP6" onclick="selectPlant('GSP6',this)">GSP6</button>
+      <button class="plant-btn" data-plant="GPPP" onclick="selectPlant('GPPP',this)">GPPP</button>
+      <button class="plant-btn" data-plant="Tankfarm" onclick="selectPlant('Tankfarm',this)">Tank<br>farm</button>
+      <button class="plant-btn" data-plant="Ecocure" onclick="selectPlant('Ecocure',this)">Ecocure</button>
+      <button class="plant-btn" data-plant="CWWTP" onclick="selectPlant('CWWTP',this)">CWWTP</button>
+    </div>
+  </div>
+
+  <!-- ─── Criteria ─── -->
+  <div class="criteria-bar">
+    <span style="font-size:11px;color:var(--text3);font-family:'IBM Plex Sans Thai',sans-serif;">เกณฑ์ยอมรับ E-MAIN:</span>
+    <div class="criteria-item"><div class="criteria-dot" style="background:#1D9E75"></div>E &lt; 2Ω</div>
+    <div class="criteria-item"><div class="criteria-dot" style="background:#3B6D11"></div>I1 &lt; 5Ω</div>
+    <div class="criteria-item"><div class="criteria-dot" style="background:#639922"></div>I2 &lt; 5Ω</div>
+    <div class="criteria-item"><div class="criteria-dot" style="background:#888780"></div>S &lt; 5Ω</div>
+    <div class="criteria-item"><div class="criteria-dot" style="background:#5C5A54"></div>C &lt; 5Ω</div>
+    <span style="margin-left:auto;font-size:11px;color:var(--text3);font-family:'IBM Plex Sans Thai',sans-serif;">Rod แต่ละเส้น: ไม่มีเกณฑ์แยก (ใช้ E-MAIN)</span>
+  </div>
+
+  <!-- ─── Summary ─── -->
+  <div class="summary-bar">
+    <div class="summary-card">
+      <div class="summary-num" id="sum-total">0</div>
+      <div class="summary-label">EQ Box ทั้งหมด</div>
+    </div>
+    <div class="summary-card s-pass">
+      <div class="summary-num" id="sum-pass">0</div>
+      <div class="summary-label">ผ่าน (PASS)</div>
+    </div>
+    <div class="summary-card s-fail">
+      <div class="summary-num" id="sum-fail">0</div>
+      <div class="summary-label">ไม่ผ่าน (FAIL)</div>
+    </div>
+    <div class="summary-card s-pending">
+      <div class="summary-num" id="sum-pending">0</div>
+      <div class="summary-label">ยังไม่กรอก</div>
+    </div>
+  </div>
+
+  <!-- ─── Ground Rod Table ─── -->
+  <div class="section" id="table-section">
+    <div class="section-title" id="table-title">Ground Rod Resistance — ESP</div>
+
+    <div class="eq-header">
+      <div class="eq-header-row">
+        <div class="col">No.</div>
+        <div class="col left">EQ Box</div>
+        <div class="col">Rod Label</div>
+        <div class="col">E1</div>
+        <div class="col">E2</div>
+        <div class="col">E3</div>
+        <div class="col">E4</div>
+        <div class="col">E5</div>
+        <div class="col">E6</div>
+        <div class="col">E7</div>
+        <div class="col">E-TOTAL</div>
+        <div class="col">E-MAIN (Ω)</div>
+        <div class="col">สถานะ</div>
+      </div>
+    </div>
+    <div class="eq-body" id="eq-body">
+      <div class="empty-state">กรุณาเลือกโรงด้านบน</div>
+    </div>
+  </div>
+
+  <!-- ─── Ground Arrester (ESP only) ─── -->
+  <div class="section" id="arrester-section" style="display:none;">
+    <div class="section-title">Ground Arrester — ESP (GROUND-ESP-01)</div>
+    <div class="arrester-grid" id="arrester-body"></div>
+  </div>
+
+  <!-- ─── Notes ─── -->
+  <div class="section">
+    <div class="section-title">หมายเหตุ / บันทึกเพิ่มเติม</div>
+    <textarea id="notes" rows="3" style="width:100%;padding:10px 12px;border:0.5px solid var(--border);border-radius:var(--radius);font-family:'IBM Plex Sans Thai',sans-serif;font-size:14px;resize:vertical;outline:none;color:var(--text);background:var(--surface);" placeholder="กรอกรายละเอียดเพิ่มเติม..."></textarea>
+  </div>
+
+  <!-- ─── Submit ─── -->
+  <div class="submit-area">
+    <button class="btn-reset" onclick="resetForm()">ล้างข้อมูล</button>
+    <button class="btn-submit" onclick="submitForm()">บันทึกข้อมูล →</button>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ─── DATA: EQ Boxes from PDF ───────────────────────────────────────────────
+// columns = number of actual rods for that EQ
+// type: E=earth main, I=instrument, S=structure, C=cable tray
+const PLANTS = {
+  ESP: {
+    label: "ESP",
+    // Ground Rod EQ (GROUND-ESP-02)
+    eqBoxes: [
+      { no:1,  name:"3208-ES-001E-A", rods:3, type:"E" },
+      { no:2,  name:"3208-ES-001E-B", rods:3, type:"E" },
+      { no:3,  name:"3208-ES-001E-C", rods:3, type:"E" },
+      { no:4,  name:"3208-ES-001E-D", rods:3, type:"E" },
+      { no:5,  name:"3228-ES-001E-E", rods:3, type:"E" },
+      { no:6,  name:"3228-ES-001E-F", rods:3, type:"E" },
+      { no:7,  name:"3208-ES-005I",   rods:5, type:"I" },
+      { no:8,  name:"3208-ES-006I",   rods:4, type:"I" },
+      { no:9,  name:"3208-ES-007I",   rods:4, type:"I" },
+      { no:10, name:"No Tag.",        rods:2, type:"E" },
+      { no:11, name:"3208-ES-004L",   rods:4, type:"E" },
+      { no:12, name:"3208-ES-002E",   rods:5, type:"E" },
+      { no:13, name:"3208-ES-003L",   rods:4, type:"E" },
+      { no:14, name:"3208-ES-016E",   rods:3, type:"E" },
+      { no:15, name:"3218-ES-014E",   rods:4, type:"E" },
+      { no:16, name:"3225-ES-001E1",  rods:3, type:"E" },
+      { no:17, name:"3225-ES-001E2",  rods:3, type:"E" },
+      { no:18, name:"3201-ES-008E-1", rods:4, type:"E" },
+      { no:19, name:"3201-ES-008E-2", rods:2, type:"E" },
+      { no:20, name:"3201-ES-009E-1", rods:4, type:"E" },
+      { no:21, name:"3201-ES-009E-2", rods:2, type:"E" },
+      { no:22, name:"3201-ES-017E",   rods:3, type:"E" },
+      { no:23, name:"3201-ES-018E",   rods:3, type:"E" },
+      { no:24, name:"3202-ES-010E",   rods:4, type:"E" },
+      { no:25, name:"3206-ES-011E",   rods:4, type:"E" },
+      { no:26, name:"3206-ES-020E",   rods:4, type:"E" },
+      { no:27, name:"3203-ES-012E-1", rods:3, type:"E" },
+      { no:28, name:"3203-ES-012E-2", rods:4, type:"E" },
+      { no:29, name:"3208-ES-013E-1", rods:4, type:"E" },
+      { no:30, name:"3208-ES-013E-2", rods:4, type:"E" },
+      { no:31, name:"3208-ES-013E-3", rods:2, type:"E" },
+      { no:32, name:"3215-ES-015E-1", rods:4, type:"E" },
+      { no:33, name:"3215-ES-015E-2", rods:2, type:"E" },
+      { no:34, name:"3216-ES-001E1",  rods:4, type:"E" },
+      { no:35, name:"3216-ES-001E1",  rods:3, type:"E" },
+    ],
+    // Ground Arrester (GROUND-ESP-01) — from pages 4-6 of PDF
+    arrester: [
+      {
+        area: "Main Substation (North)",
+        points: [
+          {label:"จุดที่ 1", val:1.008}, {label:"จุดที่ 2", val:0.943},
+          {label:"จุดที่ 3", val:0.814}, {label:"จุดที่ 4", val:0.689}
+        ]
+      },
+      {
+        area: "Main Substation (South)",
+        points: [
+          {label:"จุดที่ 1", val:0.479}, {label:"จุดที่ 2", val:0.688},
+          {label:"จุดที่ 3", val:0.799}, {label:"จุดที่ 4", val:1.297}
+        ]
+      },
+      {
+        area: "TEG & ETHANE RECOVERY",
+        points: [
+          {label:"จุดที่ 1", val:0.395}, {label:"จุดที่ 2", val:0.784},
+          {label:"จุดที่ 3", val:0.685}, {label:"จุดที่ 4", val:0.746},
+          {label:"จุดที่ 5", val:0.792}, {label:"จุดที่ 6", val:0.793}
+        ]
+      },
+      {
+        area: "GTG#A",
+        points: [
+          {label:"จุดที่ 1", val:0.689}, {label:"จุดที่ 2", val:0.781},
+          {label:"จุดที่ 3", val:0.666}, {label:"จุดที่ 4", val:0.657}
+        ]
+      },
+      {
+        area: "GTG#B",
+        points: [
+          {label:"จุดที่ 1", val:0.768}, {label:"จุดที่ 2", val:0.669},
+          {label:"จุดที่ 3", val:0.675}, {label:"จุดที่ 4", val:0.798}
+        ]
+      },
+      {
+        area: "3202-1PM003",
+        points: [
+          {label:"จุดที่ 1", val:0.345}, {label:"จุดที่ 2", val:0.623},
+          {label:"จุดที่ 3", val:0.298}, {label:"จุดที่ 4", val:0.309}
+        ]
+      },
+      {
+        area: "3202-2PM003",
+        points: [
+          {label:"จุดที่ 1", val:0.347}, {label:"จุดที่ 2", val:0.379},
+          {label:"จุดที่ 3", val:0.328}, {label:"จุดที่ 4", val:0.306}
+        ]
+      },
+      {
+        area: "3208-D-003",
+        points: [
+          {label:"จุดที่ 1", val:0.264}, {label:"จุดที่ 2", val:0.289},
+          {label:"จุดที่ 3", val:0.315}, {label:"จุดที่ 4", val:0.979}
+        ]
+      },
+      {
+        area: "LRS Substation",
+        points: [
+          {label:"จุดที่ 1", val:0.406}, {label:"จุดที่ 2", val:0.348},
+          {label:"จุดที่ 3", val:0.315}, {label:"จุดที่ 4", val:0.318}
+        ]
+      },
+      {
+        area: "Stack ESP",
+        points: [
+          {label:"จุดที่ 1", val:0.587}, {label:"จุดที่ 2", val:0.974}
+        ]
+      }
+    ]
+  },
+  GSP1: { label:"GSP1", eqBoxes: generatePlaceholder("GSP1", 8), arrester: [] },
+  GSP2: { label:"GSP2", eqBoxes: generatePlaceholder("GSP2", 8), arrester: [] },
+  GSP3: { label:"GSP3", eqBoxes: generatePlaceholder("GSP3", 8), arrester: [] },
+  GSP5: { label:"GSP5", eqBoxes: generatePlaceholder("GSP5", 8), arrester: [] },
+  GSP6: { label:"GSP6", eqBoxes: generatePlaceholder("GSP6", 8), arrester: [] },
+  GPPP: { label:"GPPP", eqBoxes: generatePlaceholder("GPPP", 6), arrester: [] },
+  Tankfarm: { label:"Tankfarm", eqBoxes: generatePlaceholder("TF", 6), arrester: [] },
+  Ecocure: { label:"Ecocure", eqBoxes: generatePlaceholder("ECO", 4), arrester: [] },
+  CWWTP: { label:"CWWTP", eqBoxes: generatePlaceholder("CW", 4), arrester: [] },
+};
+
+function generatePlaceholder(prefix, count) {
+  const arr = [];
+  for (let i = 1; i <= count; i++) {
+    arr.push({ no: i, name: `${prefix}-ES-00${i}E`, rods: 3, type: "E" });
+  }
+  return arr;
+}
+
+// acceptance limits per type
+const LIMITS = { E: 2, I: 5, S: 5, C: 5, default: 5 };
+
+let currentPlant = "ESP";
+
+function getLimit(type) {
+  return LIMITS[type] || LIMITS.default;
+}
+
+// ─── Set today's date ─────────────────────────────────────────────────────
+document.getElementById("inspection-date").value = new Date().toISOString().split("T")[0];
+
+// ─── Plant Selection ──────────────────────────────────────────────────────
+function selectPlant(plantId, btn) {
+  currentPlant = plantId;
+  document.querySelectorAll(".plant-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  renderTable(plantId);
+  renderArrester(plantId);
+  document.getElementById("table-title").textContent = `Ground Rod Resistance — ${plantId}`;
+  updateSummary();
+}
+
+// ─── Render EQ Table ──────────────────────────────────────────────────────
+function renderTable(plantId) {
+  const plant = PLANTS[plantId];
+  const body = document.getElementById("eq-body");
+  if (!plant || !plant.eqBoxes.length) {
+    body.innerHTML = '<div class="empty-state">ไม่มีข้อมูล EQ Box สำหรับโรงนี้</div>';
+    return;
+  }
+
+  const rows = plant.eqBoxes.map(eq => {
+    const rodLabels = Array.from({length: eq.rods}, (_, i) => `R${i+1}`).join(", ");
+    const inputs = Array.from({length: 7}, (_, i) => {
+      const disabled = i >= eq.rods ? 'disabled' : '';
+      const placeholder = i < eq.rods ? `0.000` : '';
+      return `<div class="col"><input class="eq-input" type="number" step="0.001" min="0" ${disabled} placeholder="${placeholder}" data-eq="${eq.no}" data-rod="${i+1}" oninput="onRodInput(${eq.no})" /></div>`;
+    }).join("");
+
+    const limit = getLimit(eq.type);
+    return `
+    <div class="eq-row" id="eq-row-${eq.no}">
+      <div class="col no">${eq.no}</div>
+      <div class="col eq-name">${eq.name}</div>
+      <div class="col tag-col">${Array.from({length:eq.rods},(_,i)=>`<span class="tag-pill">R${i+1}</span>`).join("")}</div>
+      ${inputs}
+      <div class="col"><div class="e-total-display" id="etotal-${eq.no}">—</div></div>
+      <div class="col"><input class="eq-input e-main-input" type="number" step="0.001" min="0" placeholder="0.000" data-main="${eq.no}" oninput="onMainInput(${eq.no})" title="E-MAIN ≤ ${limit}Ω (${eq.type})" /></div>
+      <div class="col"><div class="status-badge pending" id="status-${eq.no}">—</div></div>
+    </div>`;
+  }).join("");
+
+  body.innerHTML = rows;
+}
+
+// ─── Rod input → auto E-TOTAL (parallel resistance) ──────────────────────
+function onRodInput(eqNo) {
+  const eq = PLANTS[currentPlant].eqBoxes.find(e => e.no === eqNo);
+  const vals = [];
+  for (let i = 1; i <= eq.rods; i++) {
+    const inp = document.querySelector(`input[data-eq="${eqNo}"][data-rod="${i}"]`);
+    const v = parseFloat(inp.value);
+    if (!isNaN(v) && v > 0) vals.push(v);
+  }
+  const totalEl = document.getElementById(`etotal-${eqNo}`);
+  if (vals.length === 0) {
+    totalEl.textContent = "—"; totalEl.className = "e-total-display"; return;
+  }
+  const parallel = 1 / vals.reduce((s, v) => s + 1/v, 0);
+  totalEl.textContent = parallel.toFixed(3);
+  totalEl.className = "e-total-display";
+}
+
+// ─── E-MAIN input → status ────────────────────────────────────────────────
+function onMainInput(eqNo) {
+  const eq = PLANTS[currentPlant].eqBoxes.find(e => e.no === eqNo);
+  const inp = document.querySelector(`input[data-main="${eqNo}"]`);
+  const v = parseFloat(inp.value);
+  const statusEl = document.getElementById(`status-${eqNo}`);
+  const limit = getLimit(eq.type);
+
+  if (isNaN(v) || inp.value === "") {
+    inp.classList.remove("pass","fail");
+    statusEl.textContent = "—"; statusEl.className = "status-badge pending";
+  } else if (v <= limit) {
+    inp.classList.remove("fail"); inp.classList.add("pass");
+    statusEl.textContent = "PASS ✓"; statusEl.className = "status-badge pass";
+  } else {
+    inp.classList.remove("pass"); inp.classList.add("fail");
+    statusEl.textContent = "FAIL ✗"; statusEl.className = "status-badge fail";
+  }
+  updateSummary();
+}
+
+// ─── Render Arrester ──────────────────────────────────────────────────────
+function renderArrester(plantId) {
+  const plant = PLANTS[plantId];
+  const sec = document.getElementById("arrester-section");
+  const body = document.getElementById("arrester-body");
+  if (!plant.arrester || !plant.arrester.length) { sec.style.display = "none"; return; }
+  sec.style.display = "";
+
+  body.innerHTML = plant.arrester.map(area => `
+    <div class="arrester-area">
+      <div class="arrester-title">${area.area}</div>
+      <div class="arrester-inner">
+        ${area.points.map((p, pi) => `
+          <div class="arrester-row">
+            <div class="arrester-label">${p.label}</div>
+            <input class="eq-input" type="number" step="0.001" min="0" placeholder="0.000" style="text-align:center;font-size:12px;" oninput="checkArrester(this,2)" />
+            <div class="arrester-result" id="arr-res-${area.area.replace(/\s/g,'')}-${pi}">—</div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `).join("");
+}
+
+function checkArrester(inp, limit) {
+  const v = parseFloat(inp.value);
+  const res = inp.parentElement.querySelector('.arrester-result');
+  if (!res) return;
+  if (isNaN(v) || inp.value==="") { res.textContent="—"; res.className="arrester-result"; return; }
+  if (v <= limit) { res.textContent="PASS"; res.className="arrester-result pass"; }
+  else { res.textContent="FAIL"; res.className="arrester-result fail"; }
+}
+
+// ─── Summary ─────────────────────────────────────────────────────────────
+function updateSummary() {
+  const plant = PLANTS[currentPlant];
+  if (!plant) return;
+  const total = plant.eqBoxes.length;
+  let pass=0, fail=0, pending=0;
+  plant.eqBoxes.forEach(eq => {
+    const s = document.getElementById(`status-${eq.no}`);
+    if (!s) { pending++; return; }
+    if (s.classList.contains("pass")) pass++;
+    else if (s.classList.contains("fail")) fail++;
+    else pending++;
+  });
+  document.getElementById("sum-total").textContent = total;
+  document.getElementById("sum-pass").textContent = pass;
+  document.getElementById("sum-fail").textContent = fail;
+  document.getElementById("sum-pending").textContent = pending;
+}
+
+// ─── Submit ───────────────────────────────────────────────────────────────
+function submitForm() {
+  const date = document.getElementById("inspection-date").value;
+  const tech = document.getElementById("technician").value.trim();
+  if (!date || !tech) {
+    showToast("⚠️ กรุณากรอกวันที่และชื่อช่างผู้ตรวจ"); return;
+  }
+
+  const plant = PLANTS[currentPlant];
+  const rows = [];
+  plant.eqBoxes.forEach(eq => {
+    const rodVals = {};
+    for (let i = 1; i <= 7; i++) {
+      const inp = document.querySelector(`input[data-eq="${eq.no}"][data-rod="${i}"]`);
+      rodVals[`E${i}`] = inp && !inp.disabled ? (inp.value || "") : "";
+    }
+    const mainInp = document.querySelector(`input[data-main="${eq.no}"]`);
+    const eTotal = document.getElementById(`etotal-${eq.no}`)?.textContent || "";
+    const status = document.getElementById(`status-${eq.no}`)?.textContent || "";
+    rows.push({
+      Date: date, Plant: currentPlant, Technician: tech,
+      EQ_Box: eq.name, Rods: eq.rods, Type: eq.type,
+      E1:rodVals.E1, E2:rodVals.E2, E3:rodVals.E3, E4:rodVals.E4,
+      E5:rodVals.E5, E6:rodVals.E6, E7:rodVals.E7,
+      E_Total: eTotal, E_MAIN: mainInp?.value || "",
+      Status: status, Notes: document.getElementById("notes").value,
+      Instrument: document.getElementById("instrument").value,
+      InstrumentSN: document.getElementById("instrument-sn").value,
+      CalibValue: document.getElementById("calib-val").value
+    });
+  });
+
+  // Build CSV
+  const headers = ["Date","Plant","Technician","EQ_Box","Rods","Type","E1","E2","E3","E4","E5","E6","E7","E_Total","E_MAIN","Status","Notes","Instrument","InstrumentSN","CalibValue"];
+  const csv = [headers.join(","), ...rows.map(r => headers.map(h => `"${(r[h]||"").toString().replace(/"/g,'""')}"`).join(","))].join("\n");
+
+  // Download CSV
+  const blob = new Blob(["\uFEFF"+csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `Ground_PM_${currentPlant}_${date}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast(`✅ บันทึกข้อมูลสำเร็จ\nโรง ${currentPlant} · ${plant.eqBoxes.length} EQ Box\nไฟล์ CSV พร้อมนำเข้า Power BI`);
+}
+
+// ─── Reset ────────────────────────────────────────────────────────────────
+function resetForm() {
+  if (!confirm("ล้างข้อมูลที่กรอกทั้งหมด?")) return;
+  document.querySelectorAll(".eq-input").forEach(inp => {
+    if (!inp.disabled) { inp.value = ""; inp.classList.remove("pass","fail"); }
+  });
+  document.querySelectorAll(".e-total-display").forEach(el => {
+    el.textContent = "—"; el.className = "e-total-display";
+  });
+  document.querySelectorAll(".status-badge").forEach(el => {
+    el.textContent = "—"; el.className = "status-badge pending";
+  });
+  document.getElementById("notes").value = "";
+  updateSummary();
+  showToast("ล้างข้อมูลเรียบร้อยแล้ว");
+}
+
+// ─── Toast ────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 3500);
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────
+selectPlant("ESP", document.querySelector('.plant-btn[data-plant="ESP"]'));
+</script>
+</body>
+</html>
