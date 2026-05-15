@@ -3,1087 +3,770 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ground Resistance PM Form — ESP</title>
+<title>Ground Resistance PM Form — PTT GSP</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
-
-  :root {
-    --bg: #F4F2ED;
-    --surface: #FFFFFF;
-    --surface2: #F9F8F5;
-    --border: #D8D5CC;
-    --border2: #C5C1B6;
-    --text: #1A1916;
-    --text2: #5C5A54;
-    --text3: #9C9A94;
-    --accent: #0F6E56;
-    --accent-light: #E1F5EE;
-    --accent-mid: #1D9E75;
-    --danger: #A32D2D;
-    --danger-light: #FCEBEB;
-    --warning: #854F0B;
-    --warning-light: #FAEEDA;
-    --pass: #3B6D11;
-    --pass-light: #EAF3DE;
-    --radius: 8px;
-    --radius-lg: 12px;
-  }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Sarabun', 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; }
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
 
-  body {
-    font-family: 'IBM Plex Sans Thai', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    font-size: 15px;
-    line-height: 1.6;
-  }
-
-  /* ─── Login Screen ─── */
+  /* ====== LOGIN ====== */
   #login-screen {
-    position: fixed; inset: 0;
-    background: var(--bg);
     display: flex; align-items: center; justify-content: center;
-    z-index: 9999;
+    min-height: 100vh; background: linear-gradient(135deg, #0f3460 0%, #16213e 50%, #0f3460 100%);
   }
-  #login-screen.hidden { display: none; }
   .login-card {
-    background: var(--surface);
-    border: 0.5px solid var(--border);
-    border-radius: 16px;
-    padding: 36px 40px;
-    width: 100%; max-width: 360px;
-    text-align: center;
+    background: white; border-radius: 16px; padding: 48px 40px; width: 380px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
   }
-  .login-logo {
-    width: 48px; height: 48px;
-    background: var(--text);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 20px;
+  .login-logo { text-align: center; margin-bottom: 32px; }
+  .login-logo .icon { font-size: 48px; margin-bottom: 12px; }
+  .login-logo h1 { font-size: 20px; font-weight: 700; color: #0f3460; }
+  .login-logo p { font-size: 13px; color: #666; margin-top: 4px; }
+  .login-card label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 8px; }
+  .login-card input[type="password"] {
+    width: 100%; padding: 12px 16px; border: 1.5px solid #ddd; border-radius: 8px;
+    font-size: 16px; font-family: inherit; outline: none; transition: border-color 0.2s;
   }
-  .login-logo svg { width: 24px; height: 24px; fill: #fff; }
-  .login-title { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
-  .login-sub { font-size: 13px; color: var(--text3); margin-bottom: 24px; }
-  .login-input {
-    width: 100%; padding: 11px 14px;
-    border: 0.5px solid var(--border);
-    border-radius: 8px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 16px; letter-spacing: 0.1em;
-    text-align: center; outline: none;
-    margin-bottom: 12px;
-    transition: border-color 0.15s;
-  }
-  .login-input:focus { border-color: var(--accent-mid); box-shadow: 0 0 0 3px rgba(29,158,117,0.12); }
+  .login-card input[type="password"]:focus { border-color: #0f3460; }
   .login-btn {
-    width: 100%; padding: 11px;
-    background: var(--text); color: #fff;
-    border: none; border-radius: 8px;
-    font-family: 'IBM Plex Sans Thai', sans-serif;
-    font-size: 15px; font-weight: 500;
-    cursor: pointer; transition: opacity 0.15s;
+    width: 100%; padding: 14px; background: #0f3460; color: white; border: none;
+    border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer;
+    margin-top: 20px; transition: background 0.2s;
   }
-  .login-btn:hover { opacity: 0.85; }
-  .login-error {
-    font-size: 12px; color: var(--danger);
-    margin-top: 10px; min-height: 18px;
-  }
+  .login-btn:hover { background: #16213e; }
+  .login-error { color: #e53e3e; font-size: 13px; margin-top: 10px; text-align: center; display: none; }
 
-  /* ─── Header ─── */
-  .header {
-    background: var(--text);
-    color: #fff;
-    padding: 0;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+  /* ====== MAIN APP ====== */
+  #app { display: none; }
+  .topbar {
+    background: #0f3460; color: white; padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   }
-  .header-inner {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 14px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-  }
-  .header-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .logo-dot {
-    width: 28px; height: 28px;
-    background: var(--accent-mid);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .logo-dot svg { width: 16px; height: 16px; fill: #fff; }
-  .header-title { font-size: 15px; font-weight: 500; letter-spacing: 0.01em; }
-  .header-sub { font-size: 12px; color: #9C9A94; font-family: 'IBM Plex Mono', monospace; }
-  .doc-ref {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    color: #9C9A94;
-    text-align: right;
-  }
+  .topbar-left h1 { font-size: 17px; font-weight: 700; }
+  .topbar-left p { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+  .topbar-right { display: flex; gap: 10px; align-items: center; }
+  .btn { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; font-family: inherit; transition: all 0.15s; }
+  .btn-ghost { background: rgba(255,255,255,0.15); color: white; }
+  .btn-ghost:hover { background: rgba(255,255,255,0.25); }
+  .btn-primary { background: #e8b04b; color: #1a1a2e; }
+  .btn-primary:hover { background: #f0c060; }
+  .btn-danger { background: #e53e3e; color: white; }
+  .btn-danger:hover { background: #c53030; }
+  .btn-success { background: #38a169; color: white; }
+  .btn-success:hover { background: #2f855a; }
 
-  /* ─── Main Layout ─── */
-  .main { max-width: 900px; margin: 0 auto; padding: 28px 24px 60px; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 24px 16px; }
 
-  /* ─── Section ─── */
-  .section {
-    background: var(--surface);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 20px 24px;
-    margin-bottom: 16px;
+  /* ====== SUMMARY BAR ====== */
+  .summary-bar {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px;
   }
-  .section-title {
-    font-size: 11px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text3);
-    margin-bottom: 14px;
+  .stat-card {
+    background: white; border-radius: 12px; padding: 16px; text-align: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
   }
+  .stat-card .num { font-size: 28px; font-weight: 700; }
+  .stat-card .lbl { font-size: 12px; color: #666; margin-top: 4px; }
+  .stat-card.pass .num { color: #38a169; }
+  .stat-card.fail .num { color: #e53e3e; }
+  .stat-card.pending .num { color: #dd6b20; }
+  .stat-card.total .num { color: #0f3460; }
 
-  /* ─── Form Elements ─── */
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-  .form-item { display: flex; flex-direction: column; gap: 5px; }
-  .form-item label {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text2);
-    letter-spacing: 0.02em;
+  /* ====== FORM HEADER INFO ====== */
+  .form-header {
+    background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
   }
-  .form-item input,
-  .form-item select,
-  .form-item textarea {
-    width: 100%;
-    padding: 9px 12px;
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--surface);
-    color: var(--text);
-    font-family: 'IBM Plex Sans Thai', sans-serif;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.15s;
-    appearance: none;
-    -webkit-appearance: none;
+  .form-header h2 { font-size: 15px; font-weight: 700; color: #0f3460; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .field-group { display: flex; flex-direction: column; gap: 4px; }
+  .field-group label { font-size: 12px; font-weight: 600; color: #555; }
+  .field-group input, .field-group select {
+    padding: 9px 12px; border: 1.5px solid #ddd; border-radius: 8px;
+    font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.2s;
+    background: white; color: #1a1a2e;
   }
-  .form-item input:focus,
-  .form-item select:focus {
-    border-color: var(--accent-mid);
-    box-shadow: 0 0 0 3px rgba(29,158,117,0.12);
-  }
-  .form-item select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235C5A54' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 32px;
-    cursor: pointer;
-  }
-  .form-item input[type="number"] { font-family: 'IBM Plex Mono', monospace; }
-  .form-item input::placeholder { color: var(--text3); }
+  .field-group input:focus, .field-group select:focus { border-color: #0f3460; }
 
-  /* ─── Plant Selector ─── */
-  .plant-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-    margin-bottom: 0;
+  /* ====== EQ TABLE ====== */
+  .section-card {
+    background: white; border-radius: 12px; margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: hidden;
   }
-  .plant-btn {
-    padding: 10px 6px;
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--surface2);
-    color: var(--text2);
-    font-family: 'IBM Plex Sans Thai', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.15s;
-    line-height: 1.3;
+  .section-header {
+    background: #0f3460; color: white; padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
   }
-  .plant-btn:hover { border-color: var(--accent-mid); color: var(--accent); }
-  .plant-btn.active {
-    background: var(--accent-light);
-    border-color: var(--accent-mid);
-    color: var(--accent);
-    border-width: 1.5px;
-  }
+  .section-header h2 { font-size: 15px; font-weight: 700; }
+  .section-header span { font-size: 12px; opacity: 0.8; }
 
-  /* ─── EQ Table ─── */
-  .eq-header {
-    display: grid;
-    gap: 0;
-    background: var(--surface2);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius) var(--radius) 0 0;
-    overflow: hidden;
+  .eq-table { width: 100%; border-collapse: collapse; }
+  .eq-table th {
+    background: #e8edf4; font-size: 11px; font-weight: 700; color: #0f3460;
+    padding: 10px 8px; text-align: center; border-bottom: 2px solid #cdd5e0;
+    white-space: nowrap;
   }
-  .eq-header-row {
-    display: grid;
-    grid-template-columns: 36px 180px 90px repeat(7, 1fr) 90px 90px 70px;
-    border-bottom: 0.5px solid var(--border);
-    background: var(--text);
-    color: #fff;
-  }
-  .eq-header-row .col {
-    padding: 9px 8px;
-    font-size: 11px;
-    font-weight: 500;
-    text-align: center;
-    letter-spacing: 0.04em;
-    border-right: 0.5px solid rgba(255,255,255,0.12);
-  }
-  .eq-header-row .col:last-child { border-right: none; }
-  .eq-header-row .col.left { text-align: left; padding-left: 12px; }
+  .eq-table th.left { text-align: left; padding-left: 16px; }
+  .eq-table td { padding: 6px 4px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+  .eq-table tr:last-child td { border-bottom: none; }
+  .eq-table tr:hover td { background: #f8fafc; }
 
-  .eq-body {
-    border: 0.5px solid var(--border);
-    border-top: none;
-    border-radius: 0 0 var(--radius) var(--radius);
-    overflow: hidden;
-  }
-  .eq-row {
-    display: grid;
-    grid-template-columns: 36px 180px 90px repeat(7, 1fr) 90px 90px 70px;
-    border-bottom: 0.5px solid var(--border);
-    align-items: center;
-    transition: background 0.1s;
-  }
-  .eq-row:last-child { border-bottom: none; }
-  .eq-row:hover { background: var(--surface2); }
-  .eq-row .col {
-    padding: 7px 8px;
-    text-align: center;
-    border-right: 0.5px solid var(--border);
-    font-size: 13px;
-  }
-  .eq-row .col:last-child { border-right: none; }
-  .eq-row .col.no {
-    font-size: 11px;
-    color: var(--text3);
-    font-family: 'IBM Plex Mono', monospace;
-    text-align: center;
-  }
-  .eq-row .col.eq-name {
-    text-align: left;
-    padding-left: 12px;
-    font-size: 12px;
-    font-family: 'IBM Plex Mono', monospace;
-    color: var(--text2);
-    font-weight: 500;
-  }
-  .eq-row .col.tag-col {
-    font-size: 11px;
-    color: var(--text3);
-    text-align: center;
-  }
+  .eq-no { font-size: 12px; color: #666; text-align: center; width: 36px; }
+  .eq-name { font-size: 13px; font-weight: 500; padding-left: 12px; min-width: 160px; }
+  .eq-rods { font-size: 12px; color: #666; text-align: center; width: 50px; }
 
-  .eq-input {
-    width: 100%;
-    padding: 5px 6px;
-    border: 0.5px solid var(--border);
-    border-radius: 5px;
-    background: var(--surface);
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-    text-align: center;
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.12s;
+  .val-input {
+    width: 72px; padding: 6px 6px; border: 1.5px solid #e2e8f0; border-radius: 6px;
+    font-size: 13px; text-align: center; font-family: inherit; outline: none;
+    transition: border-color 0.2s; color: #1a1a2e; background: white;
   }
-  .eq-input:focus { border-color: var(--accent-mid); box-shadow: 0 0 0 2px rgba(29,158,117,0.15); }
-  .eq-input:disabled {
-    background: var(--bg);
-    color: var(--text3);
-    border-color: transparent;
-    cursor: not-allowed;
-  }
-  .eq-input.pass { border-color: #97C459; background: #F4FAE8; }
-  .eq-input.fail { border-color: #E24B4A; background: #FCEBEB; }
+  .val-input:focus { border-color: #0f3460; background: #f0f4ff; }
+  .val-input:disabled { background: #f5f5f5; color: #aaa; cursor: not-allowed; }
+  .val-input.has-value { border-color: #48bb78; background: #f0fff4; }
 
-  .e-total-display {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-    font-weight: 500;
-    text-align: center;
-    padding: 5px 4px;
-    border-radius: 5px;
-    background: var(--surface2);
-    min-height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .e-total { font-size: 13px; font-weight: 700; text-align: center; width: 70px; color: #0f3460; }
+  .e-main-input {
+    width: 80px; padding: 6px 8px; border: 2px solid #e2e8f0; border-radius: 6px;
+    font-size: 14px; font-weight: 700; text-align: center; font-family: inherit;
+    outline: none; transition: all 0.2s; color: #1a1a2e; background: white;
   }
-  .e-total-display.pass { background: var(--pass-light); color: var(--pass); }
-  .e-total-display.fail { background: var(--danger-light); color: var(--danger); }
-
-  .e-main-input.pass { border-color: #97C459; background: #F4FAE8; color: var(--pass); font-weight: 500; }
-  .e-main-input.fail { border-color: #E24B4A; background: #FCEBEB; color: var(--danger); font-weight: 500; }
+  .e-main-input:focus { border-color: #0f3460; }
 
   .status-badge {
-    display: inline-block;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 500;
-    text-align: center;
-    width: 100%;
+    display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px;
+    font-weight: 700; text-align: center; min-width: 50px;
   }
-  .status-badge.pass { background: var(--pass-light); color: var(--pass); }
-  .status-badge.fail { background: var(--danger-light); color: var(--danger); }
-  .status-badge.pending { background: var(--surface2); color: var(--text3); }
+  .badge-pass { background: #c6f6d5; color: #276749; }
+  .badge-fail { background: #fed7d7; color: #9b2c2c; }
+  .badge-blank { background: #e2e8f0; color: #718096; }
 
-  /* ─── Note / Criteria ─── */
-  .criteria-bar {
-    background: var(--surface2);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 12px 16px;
-    font-size: 12px;
-    color: var(--text2);
-    font-family: 'IBM Plex Mono', monospace;
-    margin-bottom: 16px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
+  /* ====== ARRESTER TABLE ====== */
+  .arr-table { width: 100%; border-collapse: collapse; }
+  .arr-table th {
+    background: #2d3748; color: white; font-size: 11px; font-weight: 700;
+    padding: 10px 8px; text-align: center; white-space: nowrap;
   }
-  .criteria-item { display: flex; align-items: center; gap: 6px; }
-  .criteria-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    flex-shrink: 0;
+  .arr-table th.left { text-align: left; padding-left: 16px; }
+  .arr-table td { padding: 6px 4px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+  .arr-type-select {
+    padding: 6px 8px; border: 1.5px solid #e2e8f0; border-radius: 6px;
+    font-size: 12px; font-family: inherit; background: white; color: #1a1a2e; outline: none;
   }
+  .arr-type-select:focus { border-color: #0f3460; }
 
-  /* ─── Summary Bar ─── */
-  .summary-bar {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin-bottom: 16px;
+  /* ====== ACTIONS ====== */
+  .actions-bar {
+    background: white; border-radius: 12px; padding: 20px; margin-top: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
   }
-  .summary-card {
-    background: var(--surface);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 12px 14px;
-    text-align: center;
+  .actions-bar .note-input {
+    flex: 1; min-width: 200px; padding: 10px 14px; border: 1.5px solid #ddd;
+    border-radius: 8px; font-family: inherit; font-size: 13px; outline: none;
+    color: #1a1a2e; background: white;
   }
-  .summary-num {
-    font-size: 22px;
-    font-weight: 500;
-    font-family: 'IBM Plex Mono', monospace;
-    line-height: 1.1;
-  }
-  .summary-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
-  .summary-card.s-pass .summary-num { color: var(--pass); }
-  .summary-card.s-fail .summary-num { color: var(--danger); }
-  .summary-card.s-pending .summary-num { color: var(--text3); }
+  .actions-bar .note-input:focus { border-color: #0f3460; }
 
-  /* ─── Ground Arrester Section ─── */
-  .arrester-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+  /* ====== MODAL ====== */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999;
+    align-items: center; justify-content: center;
   }
-  .arrester-area {
-    background: var(--surface2);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-  }
-  .arrester-title {
-    background: #2C2C2A;
-    color: #fff;
-    padding: 8px 14px;
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.02em;
-  }
-  .arrester-inner { padding: 10px 12px; }
-  .arrester-row {
-    display: grid;
-    grid-template-columns: 70px 1fr 80px;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-  .arrester-row:last-child { margin-bottom: 0; }
-  .arrester-label { font-size: 12px; color: var(--text2); }
-  .arrester-result {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    font-weight: 500;
-    text-align: right;
-  }
-  .arrester-result.pass { color: var(--pass); }
-  .arrester-result.fail { color: var(--danger); }
+  .modal-overlay.active { display: flex; }
+  .modal { background: white; border-radius: 16px; padding: 32px; max-width: 400px; width: 90%; text-align: center; }
+  .modal h3 { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
+  .modal p { color: #555; font-size: 14px; margin-bottom: 24px; line-height: 1.6; }
+  .modal-btns { display: flex; gap: 12px; justify-content: center; }
 
-  /* ─── Submit ─── */
-  .submit-area {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    justify-content: flex-end;
-    margin-top: 20px;
-  }
-  .btn-reset {
-    padding: 10px 20px;
-    border: 0.5px solid var(--border2);
-    border-radius: var(--radius);
-    background: var(--surface);
-    color: var(--text2);
-    font-family: 'IBM Plex Sans Thai', sans-serif;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .btn-reset:hover { background: var(--surface2); }
-  .btn-submit {
-    padding: 10px 28px;
-    border: none;
-    border-radius: var(--radius);
-    background: var(--accent);
-    color: #fff;
-    font-family: 'IBM Plex Sans Thai', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s;
-    letter-spacing: 0.02em;
-  }
-  .btn-submit:hover { background: var(--accent-mid); }
-  .btn-submit:active { transform: scale(0.98); }
-
-  /* ─── Toast ─── */
+  /* ====== STATUS TOAST ====== */
   #toast {
-    position: fixed;
-    bottom: 28px;
-    right: 28px;
-    background: var(--text);
-    color: #fff;
-    padding: 12px 18px;
-    border-radius: var(--radius);
-    font-size: 13px;
+    position: fixed; bottom: 24px; right: 24px; padding: 14px 20px;
+    border-radius: 10px; font-size: 14px; font-weight: 600; z-index: 9999;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2); transition: all 0.3s; transform: translateY(100px);
     opacity: 0;
-    transform: translateY(8px);
-    transition: all 0.25s;
-    pointer-events: none;
-    z-index: 999;
-    max-width: 320px;
-    line-height: 1.5;
   }
-  #toast.show { opacity: 1; transform: translateY(0); }
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.success { background: #38a169; color: white; }
+  #toast.error { background: #e53e3e; color: white; }
+  #toast.info { background: #0f3460; color: white; }
 
-  /* ─── Empty State ─── */
-  .empty-state {
-    text-align: center;
-    padding: 40px;
-    color: var(--text3);
-    font-size: 13px;
+  /* ====== PLANT SELECTOR ====== */
+  .plant-pill {
+    display: inline-block; padding: 8px 20px; border-radius: 20px; font-size: 13px;
+    font-weight: 600; cursor: pointer; border: 2px solid #ddd; margin: 4px;
+    transition: all 0.15s; background: white; color: #555;
   }
-  .empty-state svg { margin-bottom: 10px; opacity: 0.4; }
+  .plant-pill.active { background: #0f3460; color: white; border-color: #0f3460; }
+  .plant-pill:hover:not(.active) { border-color: #0f3460; color: #0f3460; }
 
-  /* ─── Calibration note ─── */
-  .calib-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 10px;
-  }
-  .calib-item {
-    background: var(--surface2);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 10px 14px;
-    font-size: 12px;
-    font-family: 'IBM Plex Mono', monospace;
-    color: var(--text2);
-  }
-  .calib-label { font-size: 11px; color: var(--text3); margin-bottom: 3px; font-family: 'IBM Plex Sans Thai', sans-serif; }
-
-  .tag-pill {
-    display: inline-block;
-    padding: 2px 7px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-family: 'IBM Plex Mono', monospace;
-    background: var(--accent-light);
-    color: var(--accent);
-    font-weight: 500;
-    margin-right: 2px;
-  }
-
-  @media (max-width: 700px) {
-    .plant-grid { grid-template-columns: repeat(3, 1fr); }
-    .form-grid, .form-grid-3 { grid-template-columns: 1fr; }
+  @media (max-width: 600px) {
     .summary-bar { grid-template-columns: repeat(2, 1fr); }
-    .arrester-grid { grid-template-columns: 1fr; }
-    .eq-header-row, .eq-row { font-size: 11px; }
+    .topbar { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .val-input { width: 56px; }
+    .e-main-input { width: 64px; }
+    .eq-name { min-width: 110px; font-size: 12px; }
   }
 </style>
 </head>
 <body>
 
-<!-- ─── Login Screen ─── -->
+<!-- ===== CONFIG — แก้ตรงนี้เลย ===== -->
+<script>
+  const APPS_SCRIPT_URL = "ใส่_URL_Apps_Script_ของคุณตรงนี้";
+  // ตัวอย่าง: "https://script.google.com/macros/s/AKfycby.../exec"
+
+  const LOGIN_PASSWORD = "ground2568";
+</script>
+
+<!-- ===== LOGIN SCREEN ===== -->
 <div id="login-screen">
   <div class="login-card">
     <div class="login-logo">
-      <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="4"/><path d="M8 2v2M8 12v2M2 8h2M12 8h2" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
+      <div class="icon">⚡</div>
+      <h1>Ground PM System</h1>
+      <p>โรงแยกก๊าซธรรมชาติ — PTT GSP</p>
     </div>
-    <div class="login-title">Ground PM Inspection</div>
-    <div class="login-sub">กรอก Password เพื่อเข้าใช้งาน</div>
-    <input class="login-input" type="password" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkLogin()" />
-    <button class="login-btn" onclick="checkLogin()">เข้าสู่ระบบ</button>
-    <div class="login-error" id="login-error"></div>
+    <label>รหัสผ่าน</label>
+    <input type="password" id="pwd-input" placeholder="กรอกรหัสผ่าน" autocomplete="current-password">
+    <div class="login-error" id="login-error">❌ รหัสผ่านไม่ถูกต้อง</div>
+    <button class="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
   </div>
 </div>
 
-<div class="header">
-  <div class="header-inner">
-    <div class="header-logo">
-      <div class="logo-dot">
-        <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="4"/><path d="M8 2v2M8 12v2M2 8h2M12 8h2" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
+<!-- ===== MAIN APP ===== -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>⚡ Ground Resistance PM</h1>
+      <p>ระบบบันทึกผลการวัดความต้านทานดิน — PTT GSP</p>
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-ghost" onclick="resetForm()">🔄 ล้างข้อมูล</button>
+      <button class="btn btn-primary" onclick="confirmSave()">💾 บันทึกลง Sheets</button>
+      <button class="btn btn-ghost" onclick="doLogout()">ออกจากระบบ</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Summary Bar -->
+    <div class="summary-bar">
+      <div class="stat-card total"><div class="num" id="cnt-total">0</div><div class="lbl">รายการทั้งหมด</div></div>
+      <div class="stat-card pass"><div class="num" id="cnt-pass">0</div><div class="lbl">✅ PASS</div></div>
+      <div class="stat-card fail"><div class="num" id="cnt-fail">0</div><div class="lbl">❌ FAIL</div></div>
+      <div class="stat-card pending"><div class="num" id="cnt-pending">0</div><div class="lbl">⏳ ยังไม่กรอก</div></div>
+    </div>
+
+    <!-- Form Header -->
+    <div class="form-header">
+      <h2>📋 ข้อมูลทั่วไป</h2>
+      <div class="field-row">
+        <div class="field-group">
+          <label>วันที่ PM</label>
+          <input type="date" id="f-date">
+        </div>
+        <div class="field-group">
+          <label>ชื่อช่าง / ผู้วัด</label>
+          <input type="text" id="f-tech" placeholder="ชื่อ-นามสกุล">
+        </div>
+        <div class="field-group">
+          <label>เครื่องมือวัด</label>
+          <input type="text" id="f-instrument" value="Fluke 1630 Earth" placeholder="รุ่นเครื่องมือ">
+        </div>
+        <div class="field-group">
+          <label>Serial No.</label>
+          <input type="text" id="f-sn" value="28320082-C" placeholder="S/N">
+        </div>
+        <div class="field-group">
+          <label>ค่า Calibrate (Ω)</label>
+          <input type="number" id="f-calib" value="10.11" step="0.01" placeholder="10.11">
+        </div>
       </div>
-      <div>
-        <div class="header-title">Ground Resistance PM Inspection</div>
-        <div class="header-sub">PM 6 MONTHS · ESP AREA</div>
+
+      <div style="margin-top: 16px;">
+        <label style="font-size: 12px; font-weight: 600; color: #555; display: block; margin-bottom: 8px;">เลือกโรง</label>
+        <div id="plant-selector">
+          <span class="plant-pill active" data-plant="ESP" onclick="selectPlant('ESP', this)">ESP</span>
+          <span class="plant-pill" data-plant="GSP1" onclick="selectPlant('GSP1', this)">GSP1 *</span>
+          <span class="plant-pill" data-plant="GSP2" onclick="selectPlant('GSP2', this)">GSP2 *</span>
+          <span class="plant-pill" data-plant="GSP3" onclick="selectPlant('GSP3', this)">GSP3 *</span>
+          <span class="plant-pill" data-plant="GSP5" onclick="selectPlant('GSP5', this)">GSP5 *</span>
+          <span class="plant-pill" data-plant="GSP6" onclick="selectPlant('GSP6', this)">GSP6 *</span>
+          <span class="plant-pill" data-plant="GPPP" onclick="selectPlant('GPPP', this)">GPPP *</span>
+          <span class="plant-pill" data-plant="Tankfarm" onclick="selectPlant('Tankfarm', this)">Tankfarm *</span>
+        </div>
+        <p id="plant-note" style="font-size: 11px; color: #e53e3e; margin-top: 6px; display: none;">* โรงนี้ยังรอข้อมูล EQ Box จากแปลนจริง</p>
       </div>
     </div>
-    <div class="doc-ref">
-      GROUND-ESP-02<br>แก้ไขครั้งที่ 4
+
+    <!-- EQ Box Table -->
+    <div class="section-card" id="eq-section">
+      <div class="section-header">
+        <h2>🔌 Ground Rod Resistance (EQ Box)</h2>
+        <span>GROUND-ESP-02 | เกณฑ์ E-MAIN &lt; 2Ω</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="eq-table" id="eq-table">
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th class="left">EQ Box Tag</th>
+              <th>Rods</th>
+              <th>E1 (Ω)</th>
+              <th>E2 (Ω)</th>
+              <th>E3 (Ω)</th>
+              <th>E4 (Ω)</th>
+              <th>E5 (Ω)</th>
+              <th>E-Total (Ω)</th>
+              <th>E-MAIN (Ω)</th>
+              <th>สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="eq-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Ground Arrester Table -->
+    <div class="section-card">
+      <div class="section-header" style="background: #2d3748;">
+        <h2>⚡ Ground Arrester</h2>
+        <span>GROUND-ESP-01 | เกณฑ์ตามประเภท</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="arr-table">
+          <thead>
+            <tr>
+              <th style="width:36px;">No.</th>
+              <th class="left">พื้นที่ / Location</th>
+              <th>ประเภท</th>
+              <th>E-MAIN (Ω)</th>
+              <th>สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="arr-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions-bar">
+      <input type="text" class="note-input" id="f-notes" placeholder="หมายเหตุ / Notes (ถ้ามี)">
+      <button class="btn btn-success" style="padding:10px 24px;" onclick="confirmSave()">💾 บันทึกลง Google Sheets</button>
     </div>
   </div>
 </div>
 
-<div class="main">
-
-  <!-- ─── Meta Info ─── -->
-  <div class="section">
-    <div class="section-title">ข้อมูลทั่วไป</div>
-    <div class="form-grid">
-      <div class="form-item">
-        <label>วันที่ตรวจ</label>
-        <input type="date" id="inspection-date">
-      </div>
-      <div class="form-item">
-        <label>ชื่อช่างผู้ตรวจ</label>
-        <input type="text" id="technician" placeholder="ชื่อ-นามสกุล">
-      </div>
-      <div class="form-item">
-        <label>เครื่องมือวัด</label>
-        <input type="text" id="instrument" placeholder="เช่น Fluke 1630 Earth">
-      </div>
-      <div class="form-item">
-        <label>Serial Number</label>
-        <input type="text" id="instrument-sn" placeholder="S/N">
-      </div>
-    </div>
-    <div class="calib-row">
-      <div class="calib-item">
-        <div class="calib-label">Calibrate ที่ 10Ω อ่านค่าได้</div>
-        <input type="number" step="0.01" id="calib-val" placeholder="10.11" style="border:none;background:transparent;font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--text);width:100%;outline:none;"> Ω
-      </div>
-      <div class="calib-item">
-        <div class="calib-label">เกณฑ์ยอมรับ error ±10%</div>
-        <span id="calib-range" style="font-size:13px;">9 – 11 Ω</span>
-      </div>
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3>📤 ยืนยันการบันทึก</h3>
+    <p id="modal-msg">กำลังจะบันทึกข้อมูลลง Google Sheets<br>ตรวจสอบข้อมูลให้ถูกต้องก่อนกด ยืนยัน</p>
+    <div class="modal-btns">
+      <button class="btn btn-danger" onclick="closeModal()">ยกเลิก</button>
+      <button class="btn btn-success" onclick="doSave()">✅ ยืนยัน บันทึก</button>
     </div>
   </div>
-
-  <!-- ─── Plant Selector ─── -->
-  <div class="section">
-    <div class="section-title">เลือกโรง / พื้นที่</div>
-    <div class="plant-grid" id="plant-grid">
-      <button class="plant-btn active" data-plant="ESP" onclick="selectPlant('ESP',this)">ESP</button>
-      <button class="plant-btn" data-plant="GSP1" onclick="selectPlant('GSP1',this)">GSP1</button>
-      <button class="plant-btn" data-plant="GSP2" onclick="selectPlant('GSP2',this)">GSP2</button>
-      <button class="plant-btn" data-plant="GSP3" onclick="selectPlant('GSP3',this)">GSP3</button>
-      <button class="plant-btn" data-plant="GSP5" onclick="selectPlant('GSP5',this)">GSP5</button>
-      <button class="plant-btn" data-plant="GSP6" onclick="selectPlant('GSP6',this)">GSP6</button>
-      <button class="plant-btn" data-plant="GPPP" onclick="selectPlant('GPPP',this)">GPPP</button>
-      <button class="plant-btn" data-plant="Tankfarm" onclick="selectPlant('Tankfarm',this)">Tank<br>farm</button>
-      <button class="plant-btn" data-plant="Ecocure" onclick="selectPlant('Ecocure',this)">Ecocure</button>
-      <button class="plant-btn" data-plant="CWWTP" onclick="selectPlant('CWWTP',this)">CWWTP</button>
-    </div>
-  </div>
-
-  <!-- ─── Criteria ─── -->
-  <div class="criteria-bar">
-    <span style="font-size:11px;color:var(--text3);font-family:'IBM Plex Sans Thai',sans-serif;">เกณฑ์ยอมรับ E-MAIN:</span>
-    <div class="criteria-item"><div class="criteria-dot" style="background:#1D9E75"></div>E &lt; 2Ω</div>
-    <div class="criteria-item"><div class="criteria-dot" style="background:#3B6D11"></div>I1 &lt; 5Ω</div>
-    <div class="criteria-item"><div class="criteria-dot" style="background:#639922"></div>I2 &lt; 5Ω</div>
-    <div class="criteria-item"><div class="criteria-dot" style="background:#888780"></div>S &lt; 5Ω</div>
-    <div class="criteria-item"><div class="criteria-dot" style="background:#5C5A54"></div>C &lt; 5Ω</div>
-    <span style="margin-left:auto;font-size:11px;color:var(--text3);font-family:'IBM Plex Sans Thai',sans-serif;">Rod แต่ละเส้น: ไม่มีเกณฑ์แยก (ใช้ E-MAIN)</span>
-  </div>
-
-  <!-- ─── Summary ─── -->
-  <div class="summary-bar">
-    <div class="summary-card">
-      <div class="summary-num" id="sum-total">0</div>
-      <div class="summary-label">EQ Box ทั้งหมด</div>
-    </div>
-    <div class="summary-card s-pass">
-      <div class="summary-num" id="sum-pass">0</div>
-      <div class="summary-label">ผ่าน (PASS)</div>
-    </div>
-    <div class="summary-card s-fail">
-      <div class="summary-num" id="sum-fail">0</div>
-      <div class="summary-label">ไม่ผ่าน (FAIL)</div>
-    </div>
-    <div class="summary-card s-pending">
-      <div class="summary-num" id="sum-pending">0</div>
-      <div class="summary-label">ยังไม่กรอก</div>
-    </div>
-  </div>
-
-  <!-- ─── Ground Rod Table ─── -->
-  <div class="section" id="table-section">
-    <div class="section-title" id="table-title">Ground Rod Resistance — ESP</div>
-
-    <div class="eq-header">
-      <div class="eq-header-row">
-        <div class="col">No.</div>
-        <div class="col left">EQ Box</div>
-        <div class="col">Rod Label</div>
-        <div class="col">E1</div>
-        <div class="col">E2</div>
-        <div class="col">E3</div>
-        <div class="col">E4</div>
-        <div class="col">E5</div>
-        <div class="col">E6</div>
-        <div class="col">E7</div>
-        <div class="col">E-TOTAL</div>
-        <div class="col">E-MAIN (Ω)</div>
-        <div class="col">สถานะ</div>
-      </div>
-    </div>
-    <div class="eq-body" id="eq-body">
-      <div class="empty-state">กรุณาเลือกโรงด้านบน</div>
-    </div>
-  </div>
-
-  <!-- ─── Ground Arrester (ESP only) ─── -->
-  <div class="section" id="arrester-section" style="display:none;">
-    <div class="section-title">Ground Arrester — ESP (GROUND-ESP-01)</div>
-    <div class="arrester-grid" id="arrester-body"></div>
-  </div>
-
-  <!-- ─── Notes ─── -->
-  <div class="section">
-    <div class="section-title">หมายเหตุ / บันทึกเพิ่มเติม</div>
-    <textarea id="notes" rows="3" style="width:100%;padding:10px 12px;border:0.5px solid var(--border);border-radius:var(--radius);font-family:'IBM Plex Sans Thai',sans-serif;font-size:14px;resize:vertical;outline:none;color:var(--text);background:var(--surface);" placeholder="กรอกรายละเอียดเพิ่มเติม..."></textarea>
-  </div>
-
-  <!-- ─── Submit ─── -->
-  <div class="submit-area">
-    <button class="btn-reset" onclick="resetForm()">ล้างข้อมูล</button>
-    <button class="btn-submit" onclick="submitForm()">บันทึกข้อมูล →</button>
-  </div>
-
 </div>
 
+<!-- Toast -->
 <div id="toast"></div>
 
 <script>
-// ─── CONFIG ──────────────────────────────────────────────────────────────
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbydTNRgsyYMuR4y6y7cXbaF0kiqfomnC2d-j3hxWYPC1v7eRkUNupXqDTTxyIa3a_U/exec";
-const LOGIN_PASSWORD  = "ground2568";   // ← เปลี่ยน password ตรงนี้ได้เลย
-
-// ─── Login ────────────────────────────────────────────────────────────────
-function checkLogin() {
-  const val = document.getElementById("pw-input").value;
-  const err = document.getElementById("login-error");
-  if (val === LOGIN_PASSWORD) {
-    document.getElementById("login-screen").classList.add("hidden");
-    sessionStorage.setItem("gpm_auth","1");
-  } else {
-    err.textContent = "Password ไม่ถูกต้อง กรุณาลองใหม่";
-    document.getElementById("pw-input").value = "";
-    document.getElementById("pw-input").focus();
-  }
-}
-if (sessionStorage.getItem("gpm_auth") === "1") {
-  document.getElementById("login-screen").classList.add("hidden");
-}
-
-
-// columns = number of actual rods for that EQ
-// type: E=earth main, I=instrument, S=structure, C=cable tray
+// ========== DATA ==========
 const PLANTS = {
   ESP: {
-    label: "ESP",
-    // Ground Rod EQ (GROUND-ESP-02)
     eqBoxes: [
-      { no:1,  name:"3208-ES-001E-A", rods:3, type:"E" },
-      { no:2,  name:"3208-ES-001E-B", rods:3, type:"E" },
-      { no:3,  name:"3208-ES-001E-C", rods:3, type:"E" },
-      { no:4,  name:"3208-ES-001E-D", rods:3, type:"E" },
-      { no:5,  name:"3228-ES-001E-E", rods:3, type:"E" },
-      { no:6,  name:"3228-ES-001E-F", rods:3, type:"E" },
-      { no:7,  name:"3208-ES-005I",   rods:5, type:"I" },
-      { no:8,  name:"3208-ES-006I",   rods:4, type:"I" },
-      { no:9,  name:"3208-ES-007I",   rods:4, type:"I" },
-      { no:10, name:"No Tag.",        rods:2, type:"E" },
-      { no:11, name:"3208-ES-004L",   rods:4, type:"E" },
-      { no:12, name:"3208-ES-002E",   rods:5, type:"E" },
-      { no:13, name:"3208-ES-003L",   rods:4, type:"E" },
-      { no:14, name:"3208-ES-016E",   rods:3, type:"E" },
-      { no:15, name:"3218-ES-014E",   rods:4, type:"E" },
-      { no:16, name:"3225-ES-001E1",  rods:3, type:"E" },
-      { no:17, name:"3225-ES-001E2",  rods:3, type:"E" },
-      { no:18, name:"3201-ES-008E-1", rods:4, type:"E" },
-      { no:19, name:"3201-ES-008E-2", rods:2, type:"E" },
-      { no:20, name:"3201-ES-009E-1", rods:4, type:"E" },
-      { no:21, name:"3201-ES-009E-2", rods:2, type:"E" },
-      { no:22, name:"3201-ES-017E",   rods:3, type:"E" },
-      { no:23, name:"3201-ES-018E",   rods:3, type:"E" },
-      { no:24, name:"3202-ES-010E",   rods:4, type:"E" },
-      { no:25, name:"3206-ES-011E",   rods:4, type:"E" },
-      { no:26, name:"3206-ES-020E",   rods:4, type:"E" },
-      { no:27, name:"3203-ES-012E-1", rods:3, type:"E" },
-      { no:28, name:"3203-ES-012E-2", rods:4, type:"E" },
-      { no:29, name:"3208-ES-013E-1", rods:4, type:"E" },
-      { no:30, name:"3208-ES-013E-2", rods:4, type:"E" },
-      { no:31, name:"3208-ES-013E-3", rods:2, type:"E" },
-      { no:32, name:"3215-ES-015E-1", rods:4, type:"E" },
-      { no:33, name:"3215-ES-015E-2", rods:2, type:"E" },
-      { no:34, name:"3216-ES-001E1",  rods:4, type:"E" },
-      { no:35, name:"3216-ES-001E1",  rods:3, type:"E" },
-    ],
-    // Ground Arrester (GROUND-ESP-01) — from pages 4-6 of PDF
-    arrester: [
-      {
-        area: "Main Substation (North)",
-        points: [
-          {label:"จุดที่ 1", val:1.008}, {label:"จุดที่ 2", val:0.943},
-          {label:"จุดที่ 3", val:0.814}, {label:"จุดที่ 4", val:0.689}
-        ]
-      },
-      {
-        area: "Main Substation (South)",
-        points: [
-          {label:"จุดที่ 1", val:0.479}, {label:"จุดที่ 2", val:0.688},
-          {label:"จุดที่ 3", val:0.799}, {label:"จุดที่ 4", val:1.297}
-        ]
-      },
-      {
-        area: "TEG & ETHANE RECOVERY",
-        points: [
-          {label:"จุดที่ 1", val:0.395}, {label:"จุดที่ 2", val:0.784},
-          {label:"จุดที่ 3", val:0.685}, {label:"จุดที่ 4", val:0.746},
-          {label:"จุดที่ 5", val:0.792}, {label:"จุดที่ 6", val:0.793}
-        ]
-      },
-      {
-        area: "GTG#A",
-        points: [
-          {label:"จุดที่ 1", val:0.689}, {label:"จุดที่ 2", val:0.781},
-          {label:"จุดที่ 3", val:0.666}, {label:"จุดที่ 4", val:0.657}
-        ]
-      },
-      {
-        area: "GTG#B",
-        points: [
-          {label:"จุดที่ 1", val:0.768}, {label:"จุดที่ 2", val:0.669},
-          {label:"จุดที่ 3", val:0.675}, {label:"จุดที่ 4", val:0.798}
-        ]
-      },
-      {
-        area: "3202-1PM003",
-        points: [
-          {label:"จุดที่ 1", val:0.345}, {label:"จุดที่ 2", val:0.623},
-          {label:"จุดที่ 3", val:0.298}, {label:"จุดที่ 4", val:0.309}
-        ]
-      },
-      {
-        area: "3202-2PM003",
-        points: [
-          {label:"จุดที่ 1", val:0.347}, {label:"จุดที่ 2", val:0.379},
-          {label:"จุดที่ 3", val:0.328}, {label:"จุดที่ 4", val:0.306}
-        ]
-      },
-      {
-        area: "3208-D-003",
-        points: [
-          {label:"จุดที่ 1", val:0.264}, {label:"จุดที่ 2", val:0.289},
-          {label:"จุดที่ 3", val:0.315}, {label:"จุดที่ 4", val:0.979}
-        ]
-      },
-      {
-        area: "LRS Substation",
-        points: [
-          {label:"จุดที่ 1", val:0.406}, {label:"จุดที่ 2", val:0.348},
-          {label:"จุดที่ 3", val:0.315}, {label:"จุดที่ 4", val:0.318}
-        ]
-      },
-      {
-        area: "Stack ESP",
-        points: [
-          {label:"จุดที่ 1", val:0.587}, {label:"จุดที่ 2", val:0.974}
-        ]
-      }
+      { tag: "3208/3228-ES-001E-A", rods: 3 },
+      { tag: "3208/3228-ES-001E-B", rods: 3 },
+      { tag: "3208/3228-ES-001E-C", rods: 3 },
+      { tag: "3208/3228-ES-001E-D", rods: 3 },
+      { tag: "3208/3228-ES-001E-E", rods: 3 },
+      { tag: "3208/3228-ES-001E-F", rods: 3 },
+      { tag: "3208-ES-005I",        rods: 5 },
+      { tag: "3208-ES-006I",        rods: 4 },
+      { tag: "3208-ES-007I",        rods: 4 },
+      { tag: "No Tag. (10)",        rods: 2 },
+      { tag: "3208-ES-004L",        rods: 3 },
+      { tag: "3208-ES-002E",        rods: 3 },
+      { tag: "3208-ES-003L",        rods: 3 },
+      { tag: "3208-ES-016E",        rods: 3 },
+      { tag: "3218-ES-014E",        rods: 3 },
+      { tag: "3218-ES-008E",        rods: 3 },
+      { tag: "3218-ES-009E",        rods: 3 },
+      { tag: "3218-ES-010E",        rods: 3 },
+      { tag: "3218-ES-011E",        rods: 3 },
+      { tag: "3218-ES-012E",        rods: 3 },
+      { tag: "3218-ES-013E",        rods: 3 },
+      { tag: "3218-ES-015E",        rods: 3 },
+      { tag: "3208-ES-017E",        rods: 2 },
+      { tag: "3208-ES-018E",        rods: 2 },
+      { tag: "3208-ES-019E",        rods: 2 },
+      { tag: "3208-ES-020E",        rods: 2 },
+      { tag: "3208-ES-021E",        rods: 2 },
+      { tag: "3208-ES-022E",        rods: 2 },
+      { tag: "3208-ES-023E",        rods: 3 },
+      { tag: "3208-ES-024E",        rods: 3 },
+      { tag: "3208-ES-025E",        rods: 3 },
+      { tag: "3208-ES-026E",        rods: 3 },
+      { tag: "3208-ES-027E",        rods: 3 },
+      { tag: "3208-ES-028E",        rods: 3 },
+      { tag: "3208-ES-029E",        rods: 3 },
     ]
-  },
-  GSP1: { label:"GSP1", eqBoxes: generatePlaceholder("GSP1", 8), arrester: [] },
-  GSP2: { label:"GSP2", eqBoxes: generatePlaceholder("GSP2", 8), arrester: [] },
-  GSP3: { label:"GSP3", eqBoxes: generatePlaceholder("GSP3", 8), arrester: [] },
-  GSP5: { label:"GSP5", eqBoxes: generatePlaceholder("GSP5", 8), arrester: [] },
-  GSP6: { label:"GSP6", eqBoxes: generatePlaceholder("GSP6", 8), arrester: [] },
-  GPPP: { label:"GPPP", eqBoxes: generatePlaceholder("GPPP", 6), arrester: [] },
-  Tankfarm: { label:"Tankfarm", eqBoxes: generatePlaceholder("TF", 6), arrester: [] },
-  Ecocure: { label:"Ecocure", eqBoxes: generatePlaceholder("ECO", 4), arrester: [] },
-  CWWTP: { label:"CWWTP", eqBoxes: generatePlaceholder("CW", 4), arrester: [] },
+  }
 };
 
-function generatePlaceholder(prefix, count) {
-  const arr = [];
-  for (let i = 1; i <= count; i++) {
-    arr.push({ no: i, name: `${prefix}-ES-00${i}E`, rods: 3, type: "E" });
-  }
-  return arr;
-}
+const ARRESTER_LOCATIONS = [
+  "Main Sub North",
+  "Main Sub South",
+  "TEG & Ethane",
+  "GTG #A",
+  "GTG #B",
+  "3202-1PM003",
+  "3202-2PM003",
+  "3208-D-003",
+  "LRS",
+  "Stack ESP",
+];
 
-// acceptance limits per type
-const LIMITS = { E: 2, I: 5, S: 5, C: 5, default: 5 };
+const TYPE_LIMITS = { E: 2, I: 5, S: 5, C: 5 };
 
 let currentPlant = "ESP";
+let eqData = {};
+let arrData = {};
 
-function getLimit(type) {
-  return LIMITS[type] || LIMITS.default;
+// ========== LOGIN ==========
+function doLogin() {
+  const pwd = document.getElementById("pwd-input").value;
+  if (pwd === LOGIN_PASSWORD) {
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    initForm();
+  } else {
+    document.getElementById("login-error").style.display = "block";
+    document.getElementById("pwd-input").value = "";
+    document.getElementById("pwd-input").focus();
+  }
 }
 
-// ─── Set today's date ─────────────────────────────────────────────────────
-document.getElementById("inspection-date").value = new Date().toISOString().split("T")[0];
+document.getElementById("pwd-input").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") doLogin();
+});
 
-// ─── Plant Selection ──────────────────────────────────────────────────────
-function selectPlant(plantId, btn) {
-  currentPlant = plantId;
-  document.querySelectorAll(".plant-btn").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active");
-  renderTable(plantId);
-  renderArrester(plantId);
-  document.getElementById("table-title").textContent = `Ground Rod Resistance — ${plantId}`;
+function doLogout() {
+  document.getElementById("login-screen").style.display = "flex";
+  document.getElementById("app").style.display = "none";
+  document.getElementById("pwd-input").value = "";
+}
+
+// ========== INIT FORM ==========
+function initForm() {
+  const today = new Date().toISOString().split("T")[0];
+  document.getElementById("f-date").value = today;
+  renderEqTable("ESP");
+  renderArrTable();
+}
+
+function selectPlant(plant, el) {
+  document.querySelectorAll(".plant-pill").forEach(p => p.classList.remove("active"));
+  el.classList.add("active");
+  currentPlant = plant;
+  const note = document.getElementById("plant-note");
+  if (plant !== "ESP") {
+    note.style.display = "block";
+    document.getElementById("eq-tbody").innerHTML = `<tr><td colspan="11" style="text-align:center;padding:32px;color:#999;">โรง ${plant} ยังรอข้อมูล EQ Box จากแปลนจริง</td></tr>`;
+  } else {
+    note.style.display = "none";
+    renderEqTable(plant);
+  }
   updateSummary();
 }
 
-// ─── Render EQ Table ──────────────────────────────────────────────────────
-function renderTable(plantId) {
-  const plant = PLANTS[plantId];
-  const body = document.getElementById("eq-body");
-  if (!plant || !plant.eqBoxes.length) {
-    body.innerHTML = '<div class="empty-state">ไม่มีข้อมูล EQ Box สำหรับโรงนี้</div>';
+// ========== RENDER EQ TABLE ==========
+function renderEqTable(plant) {
+  const tbody = document.getElementById("eq-tbody");
+  tbody.innerHTML = "";
+  if (!PLANTS[plant]) return;
+
+  PLANTS[plant].eqBoxes.forEach((eq, i) => {
+    const key = `${plant}_${i}`;
+    if (!eqData[key]) eqData[key] = { vals: Array(5).fill(""), emain: "" };
+
+    const tr = document.createElement("tr");
+    tr.id = `eq-row-${key}`;
+
+    let rodCells = "";
+    for (let r = 0; r < 5; r++) {
+      const disabled = r >= eq.rods ? "disabled" : "";
+      const val = eqData[key].vals[r] || "";
+      rodCells += `<td><input type="number" class="val-input" ${disabled}
+        id="ei-${key}-${r}" value="${val}" step="0.01" min="0" placeholder="—"
+        oninput="onEiChange('${key}', ${i}, '${plant}')"
+        ${disabled ? "" : `onfocus="this.select()"`}></td>`;
+    }
+
+    const etot = calcTotal(eqData[key].vals.slice(0, eq.rods));
+    const emain = eqData[key].emain || "";
+    const status = getStatus(emain, "E");
+
+    tr.innerHTML = `
+      <td class="eq-no">${i + 1}</td>
+      <td class="eq-name">${eq.tag}</td>
+      <td class="eq-rods">${eq.rods}</td>
+      ${rodCells}
+      <td class="e-total" id="etot-${key}">${etot !== null ? etot.toFixed(2) : "—"}</td>
+      <td><input type="number" class="e-main-input" id="emain-${key}"
+        value="${emain}" step="0.01" min="0" placeholder="วัดได้"
+        oninput="onEmainChange('${key}', '${plant}')"
+        onfocus="this.select()"></td>
+      <td id="stat-${key}"><span class="status-badge ${statusClass(status)}">${status}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function onEiChange(key, idx, plant) {
+  const eq = PLANTS[plant].eqBoxes[idx];
+  let vals = [];
+  for (let r = 0; r < eq.rods; r++) {
+    const el = document.getElementById(`ei-${key}-${r}`);
+    vals.push(el ? el.value : "");
+  }
+  eqData[key].vals = vals;
+
+  const tot = calcTotal(vals);
+  const totEl = document.getElementById(`etot-${key}`);
+  if (totEl) totEl.textContent = tot !== null ? tot.toFixed(2) : "—";
+
+  vals.forEach((v, r) => {
+    const inp = document.getElementById(`ei-${key}-${r}`);
+    if (inp) inp.classList.toggle("has-value", v !== "" && !isNaN(parseFloat(v)));
+  });
+  updateSummary();
+}
+
+function onEmainChange(key, plant) {
+  const el = document.getElementById(`emain-${key}`);
+  const val = el ? el.value : "";
+  eqData[key].emain = val;
+
+  const status = getStatus(val, "E");
+  const statEl = document.getElementById(`stat-${key}`);
+  if (statEl) statEl.innerHTML = `<span class="status-badge ${statusClass(status)}">${status}</span>`;
+  updateSummary();
+}
+
+// ========== RENDER ARRESTER TABLE ==========
+function renderArrTable() {
+  const tbody = document.getElementById("arr-tbody");
+  tbody.innerHTML = "";
+
+  ARRESTER_LOCATIONS.forEach((loc, i) => {
+    if (!arrData[i]) arrData[i] = { type: "E", emain: "" };
+
+    const tr = document.createElement("tr");
+    const status = getStatus(arrData[i].emain, arrData[i].type);
+
+    tr.innerHTML = `
+      <td class="eq-no">${i + 1}</td>
+      <td class="eq-name">${loc}</td>
+      <td>
+        <select class="arr-type-select" id="arr-type-${i}" onchange="onArrTypeChange(${i})">
+          <option value="E" ${arrData[i].type === "E" ? "selected" : ""}>E (&lt;2Ω)</option>
+          <option value="I" ${arrData[i].type === "I" ? "selected" : ""}>I (&lt;5Ω)</option>
+          <option value="S" ${arrData[i].type === "S" ? "selected" : ""}>S (&lt;5Ω)</option>
+          <option value="C" ${arrData[i].type === "C" ? "selected" : ""}>C (&lt;5Ω)</option>
+        </select>
+      </td>
+      <td><input type="number" class="e-main-input" id="arr-emain-${i}"
+        value="${arrData[i].emain}" step="0.01" min="0" placeholder="วัดได้"
+        oninput="onArrEmainChange(${i})"
+        onfocus="this.select()"></td>
+      <td id="arr-stat-${i}"><span class="status-badge ${statusClass(status)}">${status}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function onArrTypeChange(i) {
+  const sel = document.getElementById(`arr-type-${i}`);
+  arrData[i].type = sel.value;
+  const status = getStatus(arrData[i].emain, arrData[i].type);
+  const statEl = document.getElementById(`arr-stat-${i}`);
+  if (statEl) statEl.innerHTML = `<span class="status-badge ${statusClass(status)}">${status}</span>`;
+  updateSummary();
+}
+
+function onArrEmainChange(i) {
+  const el = document.getElementById(`arr-emain-${i}`);
+  arrData[i].emain = el ? el.value : "";
+  const status = getStatus(arrData[i].emain, arrData[i].type);
+  const statEl = document.getElementById(`arr-stat-${i}`);
+  if (statEl) statEl.innerHTML = `<span class="status-badge ${statusClass(status)}">${status}</span>`;
+  updateSummary();
+}
+
+// ========== HELPERS ==========
+function calcTotal(vals) {
+  const nums = vals.map(v => parseFloat(v)).filter(v => !isNaN(v) && v > 0);
+  if (nums.length === 0) return null;
+  if (nums.length === 1) return nums[0];
+  const sum = nums.reduce((acc, v) => acc + 1 / v, 0);
+  return 1 / sum;
+}
+
+function getStatus(val, type) {
+  if (val === "" || val === null || val === undefined || isNaN(parseFloat(val))) return "—";
+  const limit = TYPE_LIMITS[type] || 2;
+  return parseFloat(val) < limit ? "PASS" : "FAIL";
+}
+
+function statusClass(status) {
+  if (status === "PASS") return "badge-pass";
+  if (status === "FAIL") return "badge-fail";
+  return "badge-blank";
+}
+
+function updateSummary() {
+  let total = 0, pass = 0, fail = 0, pending = 0;
+
+  if (currentPlant === "ESP") {
+    PLANTS.ESP.eqBoxes.forEach((eq, i) => {
+      const key = `ESP_${i}`;
+      total++;
+      const status = getStatus(eqData[key]?.emain, "E");
+      if (status === "PASS") pass++;
+      else if (status === "FAIL") fail++;
+      else pending++;
+    });
+  }
+
+  ARRESTER_LOCATIONS.forEach((_, i) => {
+    total++;
+    const status = getStatus(arrData[i]?.emain, arrData[i]?.type || "E");
+    if (status === "PASS") pass++;
+    else if (status === "FAIL") fail++;
+    else pending++;
+  });
+
+  document.getElementById("cnt-total").textContent = total;
+  document.getElementById("cnt-pass").textContent = pass;
+  document.getElementById("cnt-fail").textContent = fail;
+  document.getElementById("cnt-pending").textContent = pending;
+}
+
+// ========== RESET ==========
+function resetForm() {
+  if (!confirm("ล้างข้อมูลทั้งหมดใช่ไหม?")) return;
+  eqData = {};
+  arrData = {};
+  renderEqTable(currentPlant);
+  renderArrTable();
+  document.getElementById("f-notes").value = "";
+  updateSummary();
+  showToast("ล้างข้อมูลแล้ว", "info");
+}
+
+// ========== MODAL ==========
+function confirmSave() {
+  const date = document.getElementById("f-date").value;
+  const tech = document.getElementById("f-tech").value.trim();
+  if (!date) { showToast("กรุณาเลือกวันที่ก่อน", "error"); return; }
+  if (!tech) { showToast("กรุณาใส่ชื่อช่าง", "error"); return; }
+
+  const pass = parseInt(document.getElementById("cnt-pass").textContent);
+  const fail = parseInt(document.getElementById("cnt-fail").textContent);
+  const pending = parseInt(document.getElementById("cnt-pending").textContent);
+
+  document.getElementById("modal-msg").innerHTML =
+    `โรง: <strong>${currentPlant}</strong> | วันที่: <strong>${date}</strong><br>
+     ช่าง: <strong>${tech}</strong><br><br>
+     PASS: ${pass} | FAIL: ${fail} | ยังไม่กรอก: ${pending}<br><br>
+     ยืนยันบันทึกข้อมูลลง Google Sheets?`;
+  document.getElementById("modal").classList.add("active");
+}
+
+function closeModal() {
+  document.getElementById("modal").classList.remove("active");
+}
+
+// ========== SAVE TO SHEETS ==========
+async function doSave() {
+  closeModal();
+
+  if (APPS_SCRIPT_URL.includes("ใส่_URL")) {
+    showToast("❌ ยังไม่ได้ใส่ Apps Script URL — ดูวิธีแก้ด้านล่าง", "error");
+    alert("⚠️ ยังไม่ได้ใส่ Apps Script URL!\n\nเปิดไฟล์ index.html แล้วแก้บรรทัดนี้:\n\nconst APPS_SCRIPT_URL = \"ใส่_URL_Apps_Script_ของคุณตรงนี้\";\n\nแทนด้วย URL จริงของคุณ แล้ว commit ขึ้น GitHub");
     return;
   }
 
-  const rows = plant.eqBoxes.map(eq => {
-    const rodLabels = Array.from({length: eq.rods}, (_, i) => `R${i+1}`).join(", ");
-    const inputs = Array.from({length: 7}, (_, i) => {
-      const disabled = i >= eq.rods ? 'disabled' : '';
-      const placeholder = i < eq.rods ? `0.000` : '';
-      return `<div class="col"><input class="eq-input" type="number" step="0.001" min="0" ${disabled} placeholder="${placeholder}" data-eq="${eq.no}" data-rod="${i+1}" oninput="onRodInput(${eq.no})" /></div>`;
-    }).join("");
+  const date = document.getElementById("f-date").value;
+  const tech = document.getElementById("f-tech").value.trim();
+  const instrument = document.getElementById("f-instrument").value.trim();
+  const sn = document.getElementById("f-sn").value.trim();
+  const calib = document.getElementById("f-calib").value;
+  const notes = document.getElementById("f-notes").value.trim();
 
-    const limit = getLimit(eq.type);
-    return `
-    <div class="eq-row" id="eq-row-${eq.no}">
-      <div class="col no">${eq.no}</div>
-      <div class="col eq-name">${eq.name}</div>
-      <div class="col tag-col">${Array.from({length:eq.rods},(_,i)=>`<span class="tag-pill">R${i+1}</span>`).join("")}</div>
-      ${inputs}
-      <div class="col"><div class="e-total-display" id="etotal-${eq.no}">—</div></div>
-      <div class="col"><input class="eq-input e-main-input" type="number" step="0.001" min="0" placeholder="0.000" data-main="${eq.no}" oninput="onMainInput(${eq.no})" title="E-MAIN ≤ ${limit}Ω (${eq.type})" /></div>
-      <div class="col"><div class="status-badge pending" id="status-${eq.no}">—</div></div>
-    </div>`;
-  }).join("");
+  let rows = [];
 
-  body.innerHTML = rows;
-}
-
-// ─── Rod input → auto E-TOTAL (parallel resistance) ──────────────────────
-function onRodInput(eqNo) {
-  const eq = PLANTS[currentPlant].eqBoxes.find(e => e.no === eqNo);
-  const vals = [];
-  for (let i = 1; i <= eq.rods; i++) {
-    const inp = document.querySelector(`input[data-eq="${eqNo}"][data-rod="${i}"]`);
-    const v = parseFloat(inp.value);
-    if (!isNaN(v) && v > 0) vals.push(v);
-  }
-  const totalEl = document.getElementById(`etotal-${eqNo}`);
-  if (vals.length === 0) {
-    totalEl.textContent = "—"; totalEl.className = "e-total-display"; return;
-  }
-  const parallel = 1 / vals.reduce((s, v) => s + 1/v, 0);
-  totalEl.textContent = parallel.toFixed(3);
-  totalEl.className = "e-total-display";
-}
-
-// ─── E-MAIN input → status ────────────────────────────────────────────────
-function onMainInput(eqNo) {
-  const eq = PLANTS[currentPlant].eqBoxes.find(e => e.no === eqNo);
-  const inp = document.querySelector(`input[data-main="${eqNo}"]`);
-  const v = parseFloat(inp.value);
-  const statusEl = document.getElementById(`status-${eqNo}`);
-  const limit = getLimit(eq.type);
-
-  if (isNaN(v) || inp.value === "") {
-    inp.classList.remove("pass","fail");
-    statusEl.textContent = "—"; statusEl.className = "status-badge pending";
-  } else if (v <= limit) {
-    inp.classList.remove("fail"); inp.classList.add("pass");
-    statusEl.textContent = "PASS ✓"; statusEl.className = "status-badge pass";
-  } else {
-    inp.classList.remove("pass"); inp.classList.add("fail");
-    statusEl.textContent = "FAIL ✗"; statusEl.className = "status-badge fail";
-  }
-  updateSummary();
-}
-
-// ─── Render Arrester ──────────────────────────────────────────────────────
-function renderArrester(plantId) {
-  const plant = PLANTS[plantId];
-  const sec = document.getElementById("arrester-section");
-  const body = document.getElementById("arrester-body");
-  if (!plant.arrester || !plant.arrester.length) { sec.style.display = "none"; return; }
-  sec.style.display = "";
-
-  body.innerHTML = plant.arrester.map(area => `
-    <div class="arrester-area">
-      <div class="arrester-title">${area.area}</div>
-      <div class="arrester-inner">
-        ${area.points.map((p, pi) => `
-          <div class="arrester-row">
-            <div class="arrester-label">${p.label}</div>
-            <input class="eq-input" type="number" step="0.001" min="0" placeholder="0.000" style="text-align:center;font-size:12px;" oninput="checkArrester(this,2)" />
-            <div class="arrester-result" id="arr-res-${area.area.replace(/\s/g,'')}-${pi}">—</div>
-          </div>
-        `).join("")}
-      </div>
-    </div>
-  `).join("");
-}
-
-function checkArrester(inp, limit) {
-  const v = parseFloat(inp.value);
-  const res = inp.parentElement.querySelector('.arrester-result');
-  if (!res) return;
-  if (isNaN(v) || inp.value==="") { res.textContent="—"; res.className="arrester-result"; return; }
-  if (v <= limit) { res.textContent="PASS"; res.className="arrester-result pass"; }
-  else { res.textContent="FAIL"; res.className="arrester-result fail"; }
-}
-
-// ─── Summary ─────────────────────────────────────────────────────────────
-function updateSummary() {
-  const plant = PLANTS[currentPlant];
-  if (!plant) return;
-  const total = plant.eqBoxes.length;
-  let pass=0, fail=0, pending=0;
-  plant.eqBoxes.forEach(eq => {
-    const s = document.getElementById(`status-${eq.no}`);
-    if (!s) { pending++; return; }
-    if (s.classList.contains("pass")) pass++;
-    else if (s.classList.contains("fail")) fail++;
-    else pending++;
-  });
-  document.getElementById("sum-total").textContent = total;
-  document.getElementById("sum-pass").textContent = pass;
-  document.getElementById("sum-fail").textContent = fail;
-  document.getElementById("sum-pending").textContent = pending;
-}
-
-// ─── Submit ───────────────────────────────────────────────────────────────
-function submitForm() {
-  const date = document.getElementById("inspection-date").value;
-  const tech = document.getElementById("technician").value.trim();
-  if (!date || !tech) {
-    showToast("⚠️ กรุณากรอกวันที่และชื่อช่างผู้ตรวจ"); return;
+  // EQ Box rows
+  if (currentPlant === "ESP") {
+    PLANTS.ESP.eqBoxes.forEach((eq, i) => {
+      const key = `ESP_${i}`;
+      const d = eqData[key] || { vals: [], emain: "" };
+      const vals = d.vals.concat(Array(7).fill("")).slice(0, 7);
+      const etot = calcTotal(d.vals.slice(0, eq.rods));
+      const status = getStatus(d.emain, "E");
+      rows.push({
+        Date: date, Plant: currentPlant, Technician: tech,
+        EQ_Box: eq.tag, Rods: eq.rods, Type: "E",
+        E1: vals[0] || "", E2: vals[1] || "", E3: vals[2] || "",
+        E4: vals[3] || "", E5: vals[4] || "", E6: "", E7: "",
+        E_Total: etot !== null ? etot.toFixed(3) : "",
+        E_MAIN: d.emain || "", Status: status,
+        Notes: notes, Instrument: instrument, InstrumentSN: sn, CalibValue: calib
+      });
+    });
   }
 
-  const plant = PLANTS[currentPlant];
-  const rows = [];
-  plant.eqBoxes.forEach(eq => {
-    const rodVals = {};
-    for (let i = 1; i <= 7; i++) {
-      const inp = document.querySelector(`input[data-eq="${eq.no}"][data-rod="${i}"]`);
-      rodVals[`E${i}`] = inp && !inp.disabled ? (inp.value || "") : "";
-    }
-    const mainInp = document.querySelector(`input[data-main="${eq.no}"]`);
-    const eTotal = document.getElementById(`etotal-${eq.no}`)?.textContent || "";
-    const status = document.getElementById(`status-${eq.no}`)?.textContent || "";
+  // Arrester rows
+  ARRESTER_LOCATIONS.forEach((loc, i) => {
+    const d = arrData[i] || { type: "E", emain: "" };
+    const status = getStatus(d.emain, d.type);
     rows.push({
       Date: date, Plant: currentPlant, Technician: tech,
-      EQ_Box: eq.name, Rods: eq.rods, Type: eq.type,
-      E1:rodVals.E1, E2:rodVals.E2, E3:rodVals.E3, E4:rodVals.E4,
-      E5:rodVals.E5, E6:rodVals.E6, E7:rodVals.E7,
-      E_Total: eTotal, E_MAIN: mainInp?.value || "",
-      Status: status, Notes: document.getElementById("notes").value,
-      Instrument: document.getElementById("instrument").value,
-      InstrumentSN: document.getElementById("instrument-sn").value,
-      CalibValue: document.getElementById("calib-val").value
+      EQ_Box: loc, Rods: 1, Type: d.type,
+      E1: d.emain || "", E2: "", E3: "", E4: "", E5: "", E6: "", E7: "",
+      E_Total: d.emain || "", E_MAIN: d.emain || "", Status: status,
+      Notes: notes + " [Arrester]", Instrument: instrument, InstrumentSN: sn, CalibValue: calib
     });
   });
 
-  // ── ส่งข้อมูลไป Google Sheets ──
-  if (APPS_SCRIPT_URL && !APPS_SCRIPT_URL.includes("ใส่")) {
-    fetch(APPS_SCRIPT_URL, {
-      method: "POST", mode: "no-cors",
-      headers: {"Content-Type":"application/json"},
+  showToast("⏳ กำลังส่งข้อมูล...", "info");
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ rows: rows })
     });
+    showToast("✅ บันทึกสำเร็จ! ตรวจสอบใน Google Sheets", "success");
+  } catch (err) {
+    showToast("❌ ส่งข้อมูลล้มเหลว: " + err.message, "error");
   }
-
-  // Build CSV
-  const headers = ["Date","Plant","Technician","EQ_Box","Rods","Type","E1","E2","E3","E4","E5","E6","E7","E_Total","E_MAIN","Status","Notes","Instrument","InstrumentSN","CalibValue"];
-  const csv = [headers.join(","), ...rows.map(r => headers.map(h => `"${(r[h]||"").toString().replace(/"/g,'""')}"`).join(","))].join("\n");
-
-  // Download CSV
-  const blob = new Blob(["\uFEFF"+csv], {type:"text/csv;charset=utf-8;"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = `Ground_PM_${currentPlant}_${date}.csv`;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-
-  showToast(`✅ บันทึกข้อมูลสำเร็จ\nโรง ${currentPlant} · ${plant.eqBoxes.length} EQ Box\nไฟล์ CSV พร้อมนำเข้า Power BI`);
 }
 
-// ─── Reset ────────────────────────────────────────────────────────────────
-function resetForm() {
-  if (!confirm("ล้างข้อมูลที่กรอกทั้งหมด?")) return;
-  document.querySelectorAll(".eq-input").forEach(inp => {
-    if (!inp.disabled) { inp.value = ""; inp.classList.remove("pass","fail"); }
-  });
-  document.querySelectorAll(".e-total-display").forEach(el => {
-    el.textContent = "—"; el.className = "e-total-display";
-  });
-  document.querySelectorAll(".status-badge").forEach(el => {
-    el.textContent = "—"; el.className = "status-badge pending";
-  });
-  document.getElementById("notes").value = "";
-  updateSummary();
-  showToast("ล้างข้อมูลเรียบร้อยแล้ว");
-}
-
-// ─── Toast ────────────────────────────────────────────────────────────────
-function showToast(msg) {
+// ========== TOAST ==========
+function showToast(msg, type = "info") {
   const t = document.getElementById("toast");
-  t.textContent = msg; t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 3500);
+  t.textContent = msg;
+  t.className = `show ${type}`;
+  setTimeout(() => { t.className = ""; }, 4000);
 }
 
-// ─── Init ─────────────────────────────────────────────────────────────────
-selectPlant("ESP", document.querySelector('.plant-btn[data-plant="ESP"]'));
+// ========== START ==========
+updateSummary();
 </script>
 </body>
 </html>
