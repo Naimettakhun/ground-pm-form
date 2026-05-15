@@ -951,7 +951,15 @@ function submitForm() {
   // Build CSV
   const headers = ["Date","Plant","Technician","EQ_Box","Rods","Type","E1","E2","E3","E4","E5","E6","E7","E_Total","E_MAIN","Status","Notes","Instrument","InstrumentSN","CalibValue"];
   const csv = [headers.join(","), ...rows.map(r => headers.map(h => `"${(r[h]||"").toString().replace(/"/g,'""')}"`).join(","))].join("\n");
+// ── ส่งข้อมูลไป Google Sheets ──
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbydTNRgsyYMuR4y6y7cXbaF0kiqfomnC2d-j3hxWYPC1v7eRkUNupXqDTTxyIa3a_U/exec";
 
+fetch(APPS_SCRIPT_URL, {
+  method: "POST",
+  mode: "no-cors",
+  headers: {"Content-Type": "application/json"},
+  body: JSON.stringify({ rows: rows })
+});
   // Download CSV
   const blob = new Blob(["\uFEFF"+csv], {type:"text/csv;charset=utf-8;"});
   const url = URL.createObjectURL(blob);
